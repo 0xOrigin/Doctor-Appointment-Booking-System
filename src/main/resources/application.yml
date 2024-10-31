@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: doctor-appointment-management-system
+  debug: false
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+    hikari:
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      minimum-idle: 10
+      maximum-pool-size: 10
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      format_sql: true
+  liquibase:
+    enabled: true
+jwt:
+  secret: ${SECRET_KEY}
