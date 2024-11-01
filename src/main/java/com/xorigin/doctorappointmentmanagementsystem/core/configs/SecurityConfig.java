@@ -30,8 +30,9 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/monitoring",
                                 "api/v1/auth/**"
+                                ,"/users"
                         ).permitAll()
-                        .anyRequest().authenticated()
+//                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)

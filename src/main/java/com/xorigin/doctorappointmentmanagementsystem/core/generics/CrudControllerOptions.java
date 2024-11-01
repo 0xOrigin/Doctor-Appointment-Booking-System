@@ -23,6 +23,10 @@ public class CrudControllerOptions implements ControllerOptions {
         this.isDeleteAllowed = builder.isDeleteAllowed;
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public int getPageSize() {
         return pageSize;
     }
