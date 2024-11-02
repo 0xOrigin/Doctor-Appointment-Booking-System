@@ -6,17 +6,18 @@ public class ApiResponse<M extends BaseMetaResponse, P extends BasePaginationRes
 
     private final String message;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final M meta;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private final P pagination;
 
-    private final D data;
+    private D data;
 
     public ApiResponse(String message, M meta, P pagination, D data) {
         this.message = message;
-        this.meta = meta;
-        this.pagination = pagination;
+        this.meta = (meta != null && meta.getCount() != null) ? meta : null;
+        this.pagination = (pagination != null && pagination.getLast() != null) ? pagination : null;
         this.data = data;
     }
 
@@ -42,7 +43,7 @@ public class ApiResponse<M extends BaseMetaResponse, P extends BasePaginationRes
 
     public static class Builder<M extends BaseMetaResponse, P extends BasePaginationResponse, D> {
 
-        private String message;
+        private String message = "Success";
         private M meta;
         private P pagination;
         private D data;

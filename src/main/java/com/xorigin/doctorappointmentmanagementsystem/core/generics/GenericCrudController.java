@@ -13,12 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import jakarta.validation.Valid;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public abstract class GenericCrudController<T, ID, D, S extends GenericService<T, D, ? extends GenericRepository<T, ID>>> {
 
@@ -68,6 +65,29 @@ public abstract class GenericCrudController<T, ID, D, S extends GenericService<T
         }
     }
 
+    protected <DATA> ApiResponse getApiResponse(
+            String message,
+            DATA data,
+            Long count,
+            Page<T> page
+    ) {
+        return ApiResponse
+                .builder()
+                .message(message)
+                .meta(getMetaObject(count))
+                .pagination(getPaginationObject(page))
+                .data(data)
+                .build();
+    }
+
+    protected Long getCount(Specification<T> spec) {
+        return service.getRepository().count(spec);
+    }
+
+    private int getPageNumber(Pageable pageable) {
+        return pageable.getPageNumber() > 0 ? pageable.getPageNumber() - 1 : pageable.getPageNumber();
+    }
+
     @GetMapping
     public ResponseEntity<?> findAll(HttpServletRequest request, Pageable pageable) {
         if (!options.isFindAllAllowed()) {
@@ -75,44 +95,40 @@ public abstract class GenericCrudController<T, ID, D, S extends GenericService<T
         }
 
         if (!options.isPaginationEnabled()) {
-            Long count = service.getRepository().count(spec);
+            Long count = getCount(spec);
             List<T> instances = service.getRepository().findAll(spec);
-
-            ApiResponse<?, ?, ?> apiResponse = ApiResponse.builder()
-                    .message("S")
-                    .meta(getMetaObject(count))
-                    .data(instances).build();
-
-            return ResponseEntity.ok(apiResponse);
+            ApiResponse<?, ?, ?> apiResponse = getApiResponse("Success", instances, count, null);
+            return ResponseEntity.ok().body(apiResponse);
         }
 
-        Long count = service.getRepository().count(spec);
-        List<T> instances = service.getRepository().findAll(spec);
-//        Page<T> dataPage = service.getRepository().findAll(pageable);
-//        List<D> dtos = dataPage.stream().map(this::toDto).toList();
-//
-//        ApiResponse.Meta meta = new ApiResponse.Meta((int) dataPage.getTotalElements());
-//        ApiResponse.Pagination pagination = new ApiResponse.Pagination(
-//                dataPage.hasPrevious() ? dataPage.getNumber() - 1 : null,
-//                dataPage.hasNext() ? dataPage.getNumber() + 1 : null,
-//                dataPage.getTotalPages() - 1
-//        );
-//
-//        ApiResponse<D> response = new ApiResponse<>(200, "Success", meta, pagination, dtos);
+        PageRequest pageRequest = PageRequest.of(getPageNumber(pageable), options.getPageSize());
+        Page<T> page = service.getRepository().findAll(spec, pageRequest);
 
-        return ResponseEntity.ok(instances);
+//        Page<T> page = service.getRepository().findAll(spec, pageable);
+
+        ApiResponse<?, ?, ?> apiResponse = getApiResponse("Success",
+                page.getContent(),
+                page.getTotalElements(), page);
+        return ResponseEntity.ok().body(apiResponse);
     }
 
-//    @GetMapping("/{id}")
-//    public ResponseEntity<D> findOne(HttpServletRequest request, @PathVariable ID id) {
-//        if (!options.isFindOneAllowed()) {
-//            methodNotAllowed(request.getMethod());
-//        }
-//
-//        Optional<T> entity = service.getRepository().findById(id);
-//        return entity.map(value -> ResponseEntity.ok(toDto(value)))
-//                .orElseGet(() -> ResponseEntity.notFound().build());
-//    }
+    @GetMapping("/{id}")
+    public ResponseEntity<?> findOne(HttpServletRequest request, @PathVariable ID id) {
+        if (!options.isFindOneAllowed()) {
+            methodNotAllowed(request.getMethod());
+        }
+
+        Optional<T> instance = service.getRepository().findById(id);
+
+        if (instance.isPresent()){
+            ApiResponse<?, ?, ?> apiResponse = getApiResponse("Success", instance, null, null);
+            return ResponseEntity.ok().body(apiResponse);
+        }
+        else {
+            return ResponseEntity.notFound().build();
+        }
+
+    }
 //
 //    @PostMapping
 //    public ResponseEntity<D> create(HttpServletRequest request,@Valid @RequestBody D dto) {

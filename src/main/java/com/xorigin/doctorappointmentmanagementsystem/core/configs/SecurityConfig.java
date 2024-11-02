@@ -30,7 +30,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/monitoring",
                                 "api/v1/auth/**"
-                                ,"/users"
+                                ,"/users/**"
                         ).permitAll()
 //                        .anyRequest().authenticated()
                 )
