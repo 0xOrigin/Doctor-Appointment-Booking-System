@@ -1,10 +1,16 @@
 package com.xorigin.doctorappointmentmanagementsystem.core.generics;
 
 
+import org.springframework.beans.factory.annotation.Value;
+
 public class CrudControllerOptions implements ControllerOptions {
 
-    private final int pageSize;
-    private final int maxPageSize;
+    @Value("${spring.data.web.pageable.default-page-size}")
+    private int pageSize;
+
+    @Value("${spring.data.web.pageable.max-page-size}")
+    private int maxPageSize;
+
     private final boolean isPaginationEnabled;
     private final boolean isFindAllAllowed;
     private final boolean isFindOneAllowed;
@@ -59,10 +65,18 @@ public class CrudControllerOptions implements ControllerOptions {
         return isDeleteAllowed;
     }
 
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public void setMaxPageSize(int maxPageSize) {
+        this.maxPageSize = maxPageSize;
+    }
+
     public static class Builder {
         // Default values
-        private int pageSize = 10;
-        private int maxPageSize = 100;
+        private int pageSize;
+        private int maxPageSize;
         private boolean isPaginationEnabled = true;
         private boolean isFindAllAllowed = true;
         private boolean isFindOneAllowed = true;

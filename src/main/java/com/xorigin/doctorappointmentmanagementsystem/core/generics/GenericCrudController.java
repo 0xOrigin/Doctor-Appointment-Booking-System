@@ -88,6 +88,10 @@ public abstract class GenericCrudController<T, ID, D, S extends GenericService<T
         return pageable.getPageNumber() > 0 ? pageable.getPageNumber() - 1 : pageable.getPageNumber();
     }
 
+    private int getPageSize(Pageable pageable) {
+        return options.getPageSize() != pageable.getPageSize() ? pageable.getPageSize() : options.getPageSize();
+    }
+
     @GetMapping
     public ResponseEntity<?> findAll(HttpServletRequest request, Pageable pageable) {
         if (!options.isFindAllAllowed()) {
@@ -101,7 +105,7 @@ public abstract class GenericCrudController<T, ID, D, S extends GenericService<T
             return ResponseEntity.ok().body(apiResponse);
         }
 
-        PageRequest pageRequest = PageRequest.of(getPageNumber(pageable), options.getPageSize());
+        PageRequest pageRequest = PageRequest.of(getPageNumber(pageable), getPageSize(pageable));
         Page<T> page = service.getRepository().findAll(spec, pageRequest);
 
 //        Page<T> page = service.getRepository().findAll(spec, pageable);

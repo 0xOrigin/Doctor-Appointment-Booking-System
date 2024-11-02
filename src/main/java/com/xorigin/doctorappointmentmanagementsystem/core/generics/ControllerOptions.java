@@ -6,6 +6,10 @@ public interface ControllerOptions {
 
     int getMaxPageSize();
 
+    void setPageSize(int pageSize);
+
+    void setMaxPageSize(int maxPageSize);
+
     boolean isPaginationEnabled();
 
     boolean isFindAllAllowed();
