@@ -1,6 +1,7 @@
 package com.xorigin.doctorappointmentmanagementsystem.users;
 
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.ControllerOptions;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.ControllerUtils;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.GenericCrudController;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.jpa.domain.Specification;
@@ -13,8 +14,8 @@ import java.util.UUID;
 @RequestMapping("/users")
 public class UserController extends GenericCrudController<User, UUID, User, UserService> {
 
-    public UserController(@Qualifier("defaultPaginatedOptions") ControllerOptions options, Specification<User> spec, UserService service) {
-        super(options, spec, service);
+    public UserController(@Qualifier("readOnlyPaginatedOptions") ControllerOptions options, ControllerUtils utils, Specification<User> spec, UserService service) {
+        super(options, utils, spec, service);
     }
 
 }

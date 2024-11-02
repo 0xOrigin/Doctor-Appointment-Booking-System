@@ -8,130 +8,59 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.Optional;
 
 public abstract class GenericCrudController<T, ID, D, S extends GenericService<T, D, ? extends GenericRepository<T, ID>>> {
 
     private final ControllerOptions options;
+    private final ControllerUtils utils;
     private final Specification<T> spec;
     private final S service;
 
     public GenericCrudController(
             ControllerOptions options,
+            ControllerUtils utils,
             Specification<T> spec,
             S service
     ) {
         this.options = options;
+        this.utils = utils;
         this.spec = spec;
         this.service = service;
-    }
-
-    protected void methodNotAllowed(String method) {
-        throw new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED, method + " Method not allowed");
-    }
-
-    protected Class<? extends BaseMetaResponse> getMetaClass() {
-        return BaseMetaResponse.class;
-    }
-
-    protected Class<? extends BasePaginationResponse> getPaginationClass() {
-        return BasePaginationResponse.class;
-    }
-
-    protected <M extends BaseMetaResponse> M getMetaObject(Long count){
-        Class<? extends BaseMetaResponse> metaClass = getMetaClass();
-        try {
-            return (M) metaClass.getConstructor(Long.class).newInstance(count);
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    protected <P extends BasePaginationResponse> P getPaginationObject(Page<T> page){
-        Class<? extends BasePaginationResponse> paginationClass = getPaginationClass();
-        try {
-            return (P) paginationClass.getConstructor(Page.class).newInstance(page);
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    protected <DATA> ApiResponse getApiResponse(
-            String message,
-            DATA data,
-            Long count,
-            Page<T> page
-    ) {
-        return ApiResponse
-                .builder()
-                .message(message)
-                .meta(getMetaObject(count))
-                .pagination(getPaginationObject(page))
-                .data(data)
-                .build();
-    }
-
-    protected Long getCount(Specification<T> spec) {
-        return service.getRepository().count(spec);
-    }
-
-    private int getPageNumber(Pageable pageable) {
-        return pageable.getPageNumber() > 0 ? pageable.getPageNumber() - 1 : pageable.getPageNumber();
-    }
-
-    private int getPageSize(Pageable pageable) {
-        return options.getPageSize() != pageable.getPageSize() ? pageable.getPageSize() : options.getPageSize();
     }
 
     @GetMapping
     public ResponseEntity<?> findAll(HttpServletRequest request, Pageable pageable) {
         if (!options.isFindAllAllowed()) {
-            methodNotAllowed(request.getMethod());
+            utils.methodNotAllowed(request.getMethod());
         }
 
         if (!options.isPaginationEnabled()) {
-            Long count = getCount(spec);
+            Long count = service.getRepository().count(spec);;
             List<T> instances = service.getRepository().findAll(spec);
             ApiResponse<?, ?, ?> apiResponse = getApiResponse("Success", instances, count, null);
             return ResponseEntity.ok().body(apiResponse);
         }
 
-        PageRequest pageRequest = PageRequest.of(getPageNumber(pageable), getPageSize(pageable));
+        PageRequest pageRequest = PageRequest.of(utils.getPageNumber(pageable), utils.getPageSize(pageable, options));
         Page<T> page = service.getRepository().findAll(spec, pageRequest);
-
-//        Page<T> page = service.getRepository().findAll(spec, pageable);
-
-        ApiResponse<?, ?, ?> apiResponse = getApiResponse("Success",
-                page.getContent(),
-                page.getTotalElements(), page);
+        ApiResponse<?, ?, ?> apiResponse = getApiResponse("Success", page.getContent(), page.getTotalElements(), page);
         return ResponseEntity.ok().body(apiResponse);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findOne(HttpServletRequest request, @PathVariable ID id) {
         if (!options.isFindOneAllowed()) {
-            methodNotAllowed(request.getMethod());
+            utils.methodNotAllowed(request.getMethod());
         }
 
-        Optional<T> instance = service.getRepository().findById(id);
-
-        if (instance.isPresent()){
-            ApiResponse<?, ?, ?> apiResponse = getApiResponse("Success", instance, null, null);
-            return ResponseEntity.ok().body(apiResponse);
-        }
-        else {
-            return ResponseEntity.notFound().build();
-        }
-
+        return service.getRepository().findById(id)
+                .map(instance -> ResponseEntity.ok().body(getApiResponse("Success", instance, null, null)))
+                .orElse(ResponseEntity.notFound().build());
     }
 //
 //    @PostMapping
@@ -157,20 +86,53 @@ public abstract class GenericCrudController<T, ID, D, S extends GenericService<T
 //        return ResponseEntity.ok(toDto(repository.save(entity)));
 //    }
 //
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<Void> delete(HttpServletRequest request, @PathVariable ID id) {
-//        if (!options.isDeleteAllowed()) {
-//            methodNotAllowed(request.getMethod());
-//        }
-//
-//        if (!repository.existsById(id)) {
-//            return ResponseEntity.notFound().build();
-//        }
-//        repository.deleteById(id);
-//        return ResponseEntity.noContent().build();
-//    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(HttpServletRequest request, @PathVariable ID id) {
+        if (!options.isDeleteAllowed()) {
+            utils.methodNotAllowed(request.getMethod());
+        }
 
-    // Abstract methods for entity-DTO transformations
-//    protected abstract D toDto(T entity);
-//    protected abstract T toEntity(D dto);
+        if (!service.getRepository().existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        service.getRepository().deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    protected <M extends BaseMetaResponse> M getMetaObject(Long count){
+        Class<? extends BaseMetaResponse> metaClass = utils.getMetaClass();
+        try {
+            return (M) metaClass.getConstructor(Long.class).newInstance(count);
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    protected <P extends BasePaginationResponse> P getPaginationObject(Page<T> page){
+        Class<? extends BasePaginationResponse> paginationClass = utils.getPaginationClass();
+        try {
+            return (P) paginationClass.getConstructor(Page.class).newInstance(page);
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    protected <N> ApiResponse getApiResponse(
+            String message,
+            N data,
+            Long count,
+            Page<T> page
+    ) {
+        return ApiResponse
+                .builder()
+                .message(message)
+                .meta(getMetaObject(count))
+                .pagination(getPaginationObject(page))
+                .data(data)
+                .build();
+    }
+
 }

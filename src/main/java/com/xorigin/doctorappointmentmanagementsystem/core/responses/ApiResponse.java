@@ -12,7 +12,7 @@ public class ApiResponse<M extends BaseMetaResponse, P extends BasePaginationRes
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private final P pagination;
 
-    private D data;
+    private final D data;
 
     public ApiResponse(String message, M meta, P pagination, D data) {
         this.message = message;
