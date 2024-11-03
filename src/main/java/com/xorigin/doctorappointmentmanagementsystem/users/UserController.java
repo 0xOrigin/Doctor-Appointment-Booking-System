@@ -12,9 +12,9 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
-public class UserController extends GenericCrudController<User, UUID, User, UserService> {
+public class UserController extends GenericCrudController<User, UUID, UserDTO, UserService> {
 
-    public UserController(@Qualifier("readOnlyPaginatedOptions") ControllerOptions options, ControllerUtils utils, Specification<User> spec, UserService service) {
+    public UserController(@Qualifier("defaultPaginatedOptions") ControllerOptions options, ControllerUtils utils, Specification<User> spec, UserService service) {
         super(options, utils, spec, service);
     }
 

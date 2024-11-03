@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-public abstract class GenericCrudController<T, ID, D, S extends GenericService<T, D, ? extends GenericRepository<T, ID>>> {
+public abstract class GenericCrudController<T, ID, DTO, S extends GenericService<T, ? extends GenericRepository<T, ID>, DTO>> {
 
     private final ControllerOptions options;
     private final ControllerUtils utils;

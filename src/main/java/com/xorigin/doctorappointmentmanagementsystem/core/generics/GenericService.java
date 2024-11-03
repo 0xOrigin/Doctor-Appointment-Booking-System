@@ -1,28 +1,31 @@
 package com.xorigin.doctorappointmentmanagementsystem.core.generics;
 
 import com.xorigin.doctorappointmentmanagementsystem.users.User;
+import org.springframework.data.domain.AuditorAware;
 
-public abstract class GenericService<T, D, R extends GenericRepository<T, ?>> {
+import java.util.Optional;
 
-    private final User currentUser;
+public abstract class GenericService<T, R extends GenericRepository<T, ?>, DTO> {
+
+    private final AuditorAware<User> currentAuditor;
     private final R repository;
-    private final D dto;
+    private final DTO dto;
 
-    public GenericService(User currentUser, R repository, D dto) {
-        this.currentUser = currentUser;
+    public GenericService(AuditorAware<User> currentAuditor, R repository, DTO dto) {
+        this.currentAuditor = currentAuditor;
         this.repository = repository;
         this.dto = dto;
     }
 
-    public User getCurrentUser() {
-        return currentUser;
+    public Optional<User> getCurrentUser() {
+        return currentAuditor.getCurrentAuditor();
     }
 
     public R getRepository() {
         return repository;
     }
 
-    public D getDto() {
+    public DTO getDto() {
         return dto;
     }
 

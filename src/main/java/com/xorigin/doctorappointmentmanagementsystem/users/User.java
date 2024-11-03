@@ -1,7 +1,7 @@
 package com.xorigin.doctorappointmentmanagementsystem.users;
 
 
-import com.xorigin.doctorappointmentmanagementsystem.core.entities.BaseEntity;
+import com.xorigin.doctorappointmentmanagementsystem.core.entities.BaseAuditEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -17,7 +17,11 @@ import java.util.List;
 @Entity
 @Getter
 @Table(name = "AuthUser")
-public class User extends BaseEntity implements UserDetails {
+@AssociationOverride(
+        name = "createdBy",
+        joinColumns = @JoinColumn(name = "created_by", nullable = true, updatable = false)
+)
+public class User extends BaseAuditEntity implements UserDetails {
 
     private String firstName;
     private String lastName;
