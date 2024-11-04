@@ -5,10 +5,10 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserService extends GenericService<User, UserRepo, UserDTO> {
+public class UserService extends GenericService<User, UserRepo, UserDTO, UserMapper> {
 
-    public UserService(AuditorAware<User> auditorAware, UserRepo repository, UserDTO dto) {
-        super(auditorAware, repository, dto);
+    public UserService(AuditorAware<User> auditorAware, UserRepo repository, UserMapper mapper) {
+        super(auditorAware, repository, mapper);
     }
 
 }

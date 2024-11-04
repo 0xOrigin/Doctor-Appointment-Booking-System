@@ -1,6 +1,5 @@
 package com.xorigin.doctorappointmentmanagementsystem.users;
 
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,5 +14,6 @@ public class UserDTO {
     private String email;
     private String password;
     private Role role;
+    private Boolean isActive;
 
 }

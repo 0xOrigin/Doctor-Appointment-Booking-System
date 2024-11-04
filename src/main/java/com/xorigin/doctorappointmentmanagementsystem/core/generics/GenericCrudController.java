@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-public abstract class GenericCrudController<T, ID, DTO, S extends GenericService<T, ? extends GenericRepository<T, ID>, DTO>> {
+public abstract class GenericCrudController<T, ID, DTO, S extends GenericService<T, ? extends GenericRepository<T, ID>, DTO, ? extends GenericMapper<T, DTO>>> {
 
     private final ControllerOptions options;
     private final ControllerUtils utils;
@@ -40,15 +40,24 @@ public abstract class GenericCrudController<T, ID, DTO, S extends GenericService
         }
 
         if (!options.isPaginationEnabled()) {
-            Long count = service.getRepository().count(spec);;
-            List<T> instances = service.getRepository().findAll(spec);
+            Long count = service.getRepository().count(spec);
+            List<DTO> instances = service.getRepository().findAll(spec)
+                    .stream().map(instance -> service.getMapper().toDto(instance)).toList();
             ApiResponse<?, ?, ?> apiResponse = getApiResponse("Success", instances, count, null);
             return ResponseEntity.ok().body(apiResponse);
         }
 
         PageRequest pageRequest = PageRequest.of(utils.getPageNumber(pageable), utils.getPageSize(pageable, options));
         Page<T> page = service.getRepository().findAll(spec, pageRequest);
-        ApiResponse<?, ?, ?> apiResponse = getApiResponse("Success", page.getContent(), page.getTotalElements(), page);
+        ApiResponse<?, ?, ?> apiResponse = getApiResponse(
+                "Success",
+                page.getContent()
+                        .stream()
+                        .map(instance -> service.getMapper().toDto(instance))
+                        .toList(),
+                page.getTotalElements(),
+                page
+        );
         return ResponseEntity.ok().body(apiResponse);
     }
 

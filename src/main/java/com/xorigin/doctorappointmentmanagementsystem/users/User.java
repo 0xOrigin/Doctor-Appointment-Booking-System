@@ -34,7 +34,8 @@ public class User extends BaseAuditEntity implements UserDetails {
     private Role role;
     @Column(nullable = false)
     @ColumnDefault("true")
-    private boolean isActive;
+    @Builder.Default
+    private Boolean isActive = true;
 
     @Override
     public String getUsername() {

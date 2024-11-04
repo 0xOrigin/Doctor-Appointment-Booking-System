@@ -5,31 +5,29 @@ import org.springframework.data.domain.AuditorAware;
 
 import java.util.Optional;
 
-public abstract class GenericService<T, R extends GenericRepository<T, ?>, DTO> {
+public abstract class GenericService<T, R extends GenericRepository<T, ?>, DTO, M extends GenericMapper<T, DTO>> {
 
     private final AuditorAware<User> auditorAware;
     private final R repository;
-    private final DTO dto;
+    private final M mapper;
 
-    public GenericService(AuditorAware<User> auditorAware, R repository, DTO dto) {
+    public GenericService(AuditorAware<User> auditorAware, R repository, M mapper) {
         this.auditorAware = auditorAware;
         this.repository = repository;
-        this.dto = dto;
+        this.mapper = mapper;
     }
 
-    public Optional<User> getCurrentUser() {
+    protected Optional<User> getCurrentUser() {
         return auditorAware.getCurrentAuditor();
     }
 
-    public R getRepository() {
+    protected R getRepository() {
         return repository;
     }
 
-    public DTO getDto() {
-        return dto;
+    protected M getMapper() {
+        return mapper;
     }
 
-    public void create() {
-    }
 
 }
