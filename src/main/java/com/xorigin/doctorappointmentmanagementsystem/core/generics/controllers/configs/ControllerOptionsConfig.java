@@ -1,7 +1,7 @@
-package com.xorigin.doctorappointmentmanagementsystem.core.configs;
+package com.xorigin.doctorappointmentmanagementsystem.core.generics.controllers.configs;
 
-import com.xorigin.doctorappointmentmanagementsystem.core.generics.ControllerOptions;
-import com.xorigin.doctorappointmentmanagementsystem.core.generics.CrudControllerOptions;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.controllers.base.ControllerOptions;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.controllers.base.CrudControllerOptions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;

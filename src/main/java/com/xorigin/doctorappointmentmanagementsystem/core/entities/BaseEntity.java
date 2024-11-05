@@ -15,6 +15,6 @@ public abstract class BaseEntity {
     @Id
     @GeneratedValue
     @UUIDv7
-    private UUID id;
+    protected UUID id;
 
 }

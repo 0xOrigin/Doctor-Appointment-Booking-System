@@ -1,4 +1,4 @@
-package com.xorigin.doctorappointmentmanagementsystem.core.generics;
+package com.xorigin.doctorappointmentmanagementsystem.core.generics.controllers.base;
 
 public interface ControllerOptions {
 

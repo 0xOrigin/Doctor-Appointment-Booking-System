@@ -1,6 +1,6 @@
 package com.xorigin.doctorappointmentmanagementsystem.core.configs;
 
-import com.xorigin.doctorappointmentmanagementsystem.users.UserRepo;
+import com.xorigin.doctorappointmentmanagementsystem.users.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,11 +19,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
-    private final UserRepo userRepo;
+    private final UserRepository userRepository;
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> userRepo
+        return username -> userRepository
                 .findById(UUID.fromString(username))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }

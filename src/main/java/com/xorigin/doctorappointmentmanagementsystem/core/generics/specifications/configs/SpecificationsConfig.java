@@ -1,6 +1,6 @@
-package com.xorigin.doctorappointmentmanagementsystem.core.configs;
+package com.xorigin.doctorappointmentmanagementsystem.core.generics.specifications.configs;
 
-import com.xorigin.doctorappointmentmanagementsystem.core.generics.GenericSpecification;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.specifications.GenericSpecification;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.domain.Specification;

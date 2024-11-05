@@ -1,5 +1,4 @@
-package com.xorigin.doctorappointmentmanagementsystem.core.generics;
-
+package com.xorigin.doctorappointmentmanagementsystem.core.generics.controllers.base;
 
 import org.springframework.beans.factory.annotation.Value;
 

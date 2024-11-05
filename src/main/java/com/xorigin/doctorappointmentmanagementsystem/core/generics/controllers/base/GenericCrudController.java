@@ -1,5 +1,9 @@
-package com.xorigin.doctorappointmentmanagementsystem.core.generics;
+package com.xorigin.doctorappointmentmanagementsystem.core.generics.controllers.base;
 
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.mappers.base.BaseGenericMapper;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.repositories.base.BaseGenericRepository;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.services.base.BaseGenericService;
 import com.xorigin.doctorappointmentmanagementsystem.core.responses.ApiResponse;
 import com.xorigin.doctorappointmentmanagementsystem.core.responses.BaseMetaResponse;
 import com.xorigin.doctorappointmentmanagementsystem.core.responses.BasePaginationResponse;
@@ -13,48 +17,74 @@ import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
-public abstract class GenericCrudController<T, ID, DTO, S extends GenericService<T, ? extends GenericRepository<T, ID>, DTO, ? extends GenericMapper<T, DTO>>> {
+public abstract class GenericCrudController<
+        T,
+        ID,
+        S extends BaseGenericService<
+                T,
+                ID,
+                ? extends BaseGenericRepository<T, ID>,
+                ? extends BaseGenericMapper<T, ?, ?, CreateDTO, UpdateDTO>,
+                CreateDTO,
+                UpdateDTO
+        >,
+        CreateDTO,
+        UpdateDTO
+    > {
 
     private final ControllerOptions options;
     private final ControllerUtils utils;
-    private final Specification<T> spec;
+    private final UserProvider userProvider;
+    private final Optional<? extends Specification<T>> spec;
     private final S service;
 
     public GenericCrudController(
             ControllerOptions options,
             ControllerUtils utils,
-            Specification<T> spec,
+            UserProvider userProvider,
+            Optional<? extends Specification<T>> spec,
             S service
     ) {
         this.options = options;
         this.utils = utils;
+        this.userProvider = userProvider;
         this.spec = spec;
         this.service = service;
     }
 
+    protected Long getCount() {
+        return service.getRepository().count(spec.orElse(null));
+    }
+
+    protected Page<T> getPage(Pageable pageable) {
+        PageRequest pageRequest = PageRequest.of(utils.getPageNumber(pageable), utils.getPageSize(pageable, options));
+        return service.getRepository().findAll(spec.orElse(null), pageRequest);
+    }
+
+    protected List<?> mapInstancesToList(List<T> instances, Function<T, ?> mapper) {
+        return instances.stream().map(mapper).toList();
+    }
+
     @GetMapping
-    public ResponseEntity<?> findAll(HttpServletRequest request, Pageable pageable) {
+    public ResponseEntity<?> list(HttpServletRequest request, Pageable pageable) {
         if (!options.isFindAllAllowed()) {
             utils.methodNotAllowed(request.getMethod());
         }
 
         if (!options.isPaginationEnabled()) {
-            Long count = service.getRepository().count(spec);
-            List<DTO> instances = service.getRepository().findAll(spec)
-                    .stream().map(instance -> service.getMapper().toDto(instance)).toList();
+            Long count = getCount();
+            List<?> instances = mapInstancesToList(service.getRepository().findAll(spec.orElse(null)), service.getMapper()::toListDto);
             ApiResponse<?, ?, ?> apiResponse = getApiResponse("Success", instances, count, null);
             return ResponseEntity.ok().body(apiResponse);
         }
 
-        PageRequest pageRequest = PageRequest.of(utils.getPageNumber(pageable), utils.getPageSize(pageable, options));
-        Page<T> page = service.getRepository().findAll(spec, pageRequest);
+        Page<T> page = getPage(pageable);
         ApiResponse<?, ?, ?> apiResponse = getApiResponse(
                 "Success",
-                page.getContent()
-                        .stream()
-                        .map(instance -> service.getMapper().toDto(instance))
-                        .toList(),
+                mapInstancesToList(page.getContent(), service.getMapper()::toListDto),
                 page.getTotalElements(),
                 page
         );
@@ -62,7 +92,7 @@ public abstract class GenericCrudController<T, ID, DTO, S extends GenericService
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> findOne(HttpServletRequest request, @PathVariable ID id) {
+    public ResponseEntity<?> retrieve(HttpServletRequest request, @PathVariable ID id) {
         if (!options.isFindOneAllowed()) {
             utils.methodNotAllowed(request.getMethod());
         }
@@ -71,11 +101,11 @@ public abstract class GenericCrudController<T, ID, DTO, S extends GenericService
                 .map(instance -> ResponseEntity.ok().body(getApiResponse("Success", instance, null, null)))
                 .orElse(ResponseEntity.notFound().build());
     }
-//
+
 //    @PostMapping
-//    public ResponseEntity<D> create(HttpServletRequest request,@Valid @RequestBody D dto) {
+//    public ResponseEntity<?> create(HttpServletRequest request, @Valid @RequestBody D dto) {
 //        if (!options.isCreateAllowed()) {
-//            methodNotAllowed(request.getMethod());
+//            utils.methodNotAllowed(request.getMethod());
 //        }
 //
 //        T entity = toEntity(dto);
@@ -83,9 +113,9 @@ public abstract class GenericCrudController<T, ID, DTO, S extends GenericService
 //    }
 //
 //    @PutMapping("/{id}")
-//    public ResponseEntity<D> update(HttpServletRequest request, @PathVariable ID id, @Valid @RequestBody D dto) {
+//    public ResponseEntity<?> update(HttpServletRequest request, @PathVariable ID id, @Valid @RequestBody D dto) {
 //        if (!options.isUpdateAllowed()) {
-//            methodNotAllowed(request.getMethod());
+//            utils.methodNotAllowed(request.getMethod());
 //        }
 //
 //        if (!repository.existsById(id)) {
@@ -94,7 +124,7 @@ public abstract class GenericCrudController<T, ID, DTO, S extends GenericService
 //        T entity = toEntity(dto);
 //        return ResponseEntity.ok(toDto(repository.save(entity)));
 //    }
-//
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(HttpServletRequest request, @PathVariable ID id) {
         if (!options.isDeleteAllowed()) {

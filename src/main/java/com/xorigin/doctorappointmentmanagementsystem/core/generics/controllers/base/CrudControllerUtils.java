@@ -1,4 +1,4 @@
-package com.xorigin.doctorappointmentmanagementsystem.core.generics;
+package com.xorigin.doctorappointmentmanagementsystem.core.generics.controllers.base;
 
 import com.xorigin.doctorappointmentmanagementsystem.core.responses.BaseMetaResponse;
 import com.xorigin.doctorappointmentmanagementsystem.core.responses.BasePaginationResponse;

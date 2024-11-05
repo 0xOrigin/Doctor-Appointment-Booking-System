@@ -1,14 +1,14 @@
 package com.xorigin.doctorappointmentmanagementsystem.users;
 
-import com.xorigin.doctorappointmentmanagementsystem.core.generics.GenericService;
-import org.springframework.data.domain.AuditorAware;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.services.UuidSingleDtoGenericService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserService extends GenericService<User, UserRepo, UserDTO, UserMapper> {
+public class UserService extends UuidSingleDtoGenericService<User, UserRepository, UserMapper, UserDTO> {
 
-    public UserService(AuditorAware<User> auditorAware, UserRepo repository, UserMapper mapper) {
-        super(auditorAware, repository, mapper);
+    public UserService(UserProvider userProvider, UserRepository repository, UserMapper mapper) {
+        super(userProvider, repository, mapper);
     }
 
 }

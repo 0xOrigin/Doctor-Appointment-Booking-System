@@ -1,4 +1,4 @@
-package com.xorigin.doctorappointmentmanagementsystem.core.generics;
+package com.xorigin.doctorappointmentmanagementsystem.core.generics.specifications;
 
 import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.criteria.CriteriaBuilder;
