@@ -63,4 +63,25 @@ public class BasePaginationResponse {
             this.last = page.getTotalPages();
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private Page<?> page;
+
+        public Builder() {}
+
+        public Builder page(Page<?> page) {
+            this.page = page;
+            return this;
+        }
+
+        public BasePaginationResponse build() {
+            return new BasePaginationResponse(page);
+        }
+
+    }
+
 }

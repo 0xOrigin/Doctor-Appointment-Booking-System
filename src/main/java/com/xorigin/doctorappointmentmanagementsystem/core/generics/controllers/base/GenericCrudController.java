@@ -7,6 +7,7 @@ import com.xorigin.doctorappointmentmanagementsystem.core.generics.services.base
 import com.xorigin.doctorappointmentmanagementsystem.core.responses.ApiResponse;
 import com.xorigin.doctorappointmentmanagementsystem.core.responses.BaseMetaResponse;
 import com.xorigin.doctorappointmentmanagementsystem.core.responses.BasePaginationResponse;
+import com.xorigin.doctorappointmentmanagementsystem.core.responses.StandardApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,7 +16,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -77,12 +77,12 @@ public abstract class GenericCrudController<
         if (!options.isPaginationEnabled()) {
             Long count = getCount();
             List<?> instances = mapInstancesToList(service.getRepository().findAll(spec.orElse(null)), service.getMapper()::toListDto);
-            ApiResponse<?, ?, ?> apiResponse = getApiResponse("Success", instances, count, null);
+            ApiResponse<?> apiResponse = getApiResponse("Success", instances, count, null);
             return ResponseEntity.ok().body(apiResponse);
         }
 
         Page<T> page = getPage(pageable);
-        ApiResponse<?, ?, ?> apiResponse = getApiResponse(
+        ApiResponse<?> apiResponse = getApiResponse(
                 "Success",
                 mapInstancesToList(page.getContent(), service.getMapper()::toListDto),
                 page.getTotalElements(),
@@ -139,37 +139,17 @@ public abstract class GenericCrudController<
         return ResponseEntity.noContent().build();
     }
 
-    protected <M extends BaseMetaResponse> M getMetaObject(Long count){
-        Class<? extends BaseMetaResponse> metaClass = utils.getMetaClass();
-        try {
-            return (M) metaClass.getConstructor(Long.class).newInstance(count);
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    protected <P extends BasePaginationResponse> P getPaginationObject(Page<T> page){
-        Class<? extends BasePaginationResponse> paginationClass = utils.getPaginationClass();
-        try {
-            return (P) paginationClass.getConstructor(Page.class).newInstance(page);
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    protected <N> ApiResponse getApiResponse(
+    protected <N> ApiResponse<N> getApiResponse(
             String message,
             N data,
             Long count,
             Page<T> page
     ) {
-        return ApiResponse
+        return (ApiResponse<N>) StandardApiResponse
                 .builder()
                 .message(message)
-                .meta(getMetaObject(count))
-                .pagination(getPaginationObject(page))
+                .meta(BaseMetaResponse.builder().count(count).build())
+                .pagination(BasePaginationResponse.builder().page(page).build())
                 .data(data)
                 .build();
     }
