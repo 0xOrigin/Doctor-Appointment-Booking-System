@@ -16,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Getter
+@Setter
 @Table(name = "AuthUser")
 @AssociationOverride(
         name = "createdBy",

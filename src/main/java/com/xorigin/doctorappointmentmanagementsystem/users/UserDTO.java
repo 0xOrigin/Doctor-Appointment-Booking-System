@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -13,9 +14,9 @@ import java.util.UUID;
 public class UserDTO {
 
     private UUID id;
-    private String firstName;
+    private Optional<String> firstName;
     private String lastName;
-    private String email;
+    private Optional<String> email;
     private String password;
     private Role role;
     private Boolean isActive;

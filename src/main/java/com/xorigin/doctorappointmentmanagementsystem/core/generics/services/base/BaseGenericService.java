@@ -31,37 +31,41 @@ public abstract class BaseGenericService<
         return mapper;
     }
 
-    protected T preCreate(T instance, CreateDTO dto) {
-        return instance;
+    protected void preCreate(T instance, CreateDTO dto) {}
+
+    protected void preUpdate(T instance, UpdateDTO dto) {}
+
+    protected void postCreate(T instance, CreateDTO dto) {}
+
+    protected void postUpdate(T instance, UpdateDTO dto) {}
+
+    protected T getInstanceFromCreateDto(CreateDTO dto) {
+        return mapper.toEntityFromCreateDto(dto);
     }
 
-    protected T preUpdate(T instance, UpdateDTO dto) {
-        return instance;
+    protected T getInstanceFromUpdateDto(UpdateDTO dto) {
+        return mapper.toEntityFromUpdateDto(dto);
     }
 
-    protected T postCreate(T instance, CreateDTO dto) {
-        return instance;
-    }
-
-    protected T postUpdate(T instance, UpdateDTO dto) {
-        return instance;
+    protected T getUpdatedInstance(T instance) {
+        return mapper.toUpdatedEntity(instance);
     }
 
     public T create(CreateDTO dto) {
-        T instance = mapper.toEntity(dto);
-        instance = preCreate(instance, dto);
+        T instance = getInstanceFromCreateDto(dto);
+        preCreate(instance, dto);
         instance = repository.save(instance);
-        instance = postCreate(instance, dto);
+        postCreate(instance, dto);
         return instance;
     }
 
     public T update(UpdateDTO dto, ID id) {
         T instance = repository.findById(id)
                 .orElseThrow();
-        instance = preUpdate(instance, dto);
-        mapper.updateEntityFromDto(dto, instance);
+        preUpdate(instance, dto);
+        mapper.update(instance, dto);
         instance = repository.save(instance);
-        instance = postUpdate(instance, dto);
+        postUpdate(instance, dto);
         return instance;
     }
 

@@ -9,10 +9,13 @@ import com.xorigin.doctorappointmentmanagementsystem.core.responses.BaseMetaResp
 import com.xorigin.doctorappointmentmanagementsystem.core.responses.BasePaginationResponse;
 import com.xorigin.doctorappointmentmanagementsystem.core.responses.StandardApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -68,6 +71,14 @@ public abstract class GenericCrudController<
         return instances.stream().map(mapper).toList();
     }
 
+    protected T performCreate(CreateDTO dto) {
+        return service.create(dto);
+    }
+
+    protected T performUpdate(UpdateDTO dto, ID id) {
+        return service.update(dto, id);
+    }
+
     @GetMapping
     public ResponseEntity<?> list(HttpServletRequest request, Pageable pageable) {
         if (!options.isFindAllAllowed()) {
@@ -102,28 +113,27 @@ public abstract class GenericCrudController<
                 .orElse(ResponseEntity.notFound().build());
     }
 
-//    @PostMapping
-//    public ResponseEntity<?> create(HttpServletRequest request, @Valid @RequestBody D dto) {
-//        if (!options.isCreateAllowed()) {
-//            utils.methodNotAllowed(request.getMethod());
-//        }
-//
-//        T entity = toEntity(dto);
-//        return ResponseEntity.ok(toDto(repository.save(entity)));
-//    }
-//
-//    @PutMapping("/{id}")
-//    public ResponseEntity<?> update(HttpServletRequest request, @PathVariable ID id, @Valid @RequestBody D dto) {
-//        if (!options.isUpdateAllowed()) {
-//            utils.methodNotAllowed(request.getMethod());
-//        }
-//
-//        if (!repository.existsById(id)) {
-//            return ResponseEntity.notFound().build();
-//        }
-//        T entity = toEntity(dto);
-//        return ResponseEntity.ok(toDto(repository.save(entity)));
-//    }
+    @PostMapping
+    public ResponseEntity<?> create(HttpServletRequest request, @Valid @RequestBody CreateDTO dto) {
+        if (!options.isCreateAllowed()) {
+            utils.methodNotAllowed(request.getMethod());
+        }
+
+        T instance = performCreate(dto);
+        ApiResponse<?> apiResponse = getApiResponse("Success", service.getMapper().toRetrieveDto(instance), null, null);
+        return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(HttpServletRequest request, @PathVariable ID id, @Valid @RequestBody UpdateDTO dto) {
+        if (!options.isUpdateAllowed()) {
+            utils.methodNotAllowed(request.getMethod());
+        }
+
+        T instance = performUpdate(dto, id);
+        ApiResponse<?> apiResponse = getApiResponse("Success", service.getMapper().toRetrieveDto(instance), null, null);
+        return ResponseEntity.ok().body(apiResponse);
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(HttpServletRequest request, @PathVariable ID id) {

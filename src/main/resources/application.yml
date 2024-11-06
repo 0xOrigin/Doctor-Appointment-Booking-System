@@ -32,3 +32,8 @@ spring:
         sort-parameter: sort
 jwt:
   secret: ${SECRET_KEY}
+#logging:
+#  level:
+#    org.springframework: DEBUG
+#    com.xorigin.doctorappointmentmanagementsystem: DEBUG
+#    root: DEBUG
