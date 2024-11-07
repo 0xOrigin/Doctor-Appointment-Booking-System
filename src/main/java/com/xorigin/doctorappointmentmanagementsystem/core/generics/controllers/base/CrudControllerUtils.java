@@ -2,8 +2,10 @@ package com.xorigin.doctorappointmentmanagementsystem.core.generics.controllers.
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+@Service
 public class CrudControllerUtils implements ControllerUtils {
 
     public void methodNotAllowed(String method) {
@@ -15,7 +17,17 @@ public class CrudControllerUtils implements ControllerUtils {
     }
 
     public int getPageSize(Pageable pageable, ControllerOptions options) {
-        return options.getPageSize() != pageable.getPageSize() ? pageable.getPageSize() : options.getPageSize();
+        int pageSize = options.getDefaultPageSize();
+
+        if (pageable.getPageSize() != options.getDefaultPageSize())
+            pageSize = pageable.getPageSize();
+        else if (
+                options.getPageSize() != null &&
+                !options.getPageSize().equals(options.getDefaultPageSize())
+        )
+            pageSize = options.getPageSize();
+
+        return pageSize;
     }
 
 }

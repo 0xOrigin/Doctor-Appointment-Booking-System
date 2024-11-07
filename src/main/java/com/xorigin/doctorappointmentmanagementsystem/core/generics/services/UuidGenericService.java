@@ -4,6 +4,7 @@ import com.xorigin.doctorappointmentmanagementsystem.core.generics.mappers.base.
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.repositories.UuidGenericRepository;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.services.base.BaseGenericService;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.UUID;
 
@@ -15,7 +16,12 @@ public abstract class UuidGenericService<
         UpdateDTO
     > extends BaseGenericService<T, UUID, R, M, CreateDTO, UpdateDTO> {
 
+    public UuidGenericService(UserProvider userProvider, R repository, M mapper, Specification<T> spec) {
+        super(userProvider, repository, mapper, spec);
+    }
+
     public UuidGenericService(UserProvider userProvider, R repository, M mapper) {
         super(userProvider, repository, mapper);
     }
+
 }

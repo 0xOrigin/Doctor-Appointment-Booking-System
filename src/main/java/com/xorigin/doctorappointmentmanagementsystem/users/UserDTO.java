@@ -1,5 +1,6 @@
 package com.xorigin.doctorappointmentmanagementsystem.users;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ public class UserDTO {
 
     private UUID id;
     private Optional<String> firstName;
+    @NotNull
     private String lastName;
     private Optional<String> email;
     private String password;

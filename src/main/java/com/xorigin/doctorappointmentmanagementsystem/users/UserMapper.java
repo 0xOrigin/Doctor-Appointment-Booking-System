@@ -8,7 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public interface UserMapper extends SingleDtoMapper<User, UserDTO> {
 
     @Mapping(target = "password", source = "password", qualifiedByName = "encodePassword")
-    User toEntityFromCreateDto(UserDTO dto, @Context PasswordEncoder passwordEncoder);
+    User toEntity(UserDTO dto, @Context PasswordEncoder passwordEncoder);
 
     @Named("encodePassword")
     default String encodePassword(String password, @Context PasswordEncoder passwordEncoder) {

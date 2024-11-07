@@ -2,13 +2,11 @@ package com.xorigin.doctorappointmentmanagementsystem.core.generics.controllers.
 
 public interface ControllerOptions {
 
-    int getPageSize();
+    Integer getDefaultPageSize();
 
-    int getMaxPageSize();
+    Integer getPageSize();
 
-    void setPageSize(int pageSize);
-
-    void setMaxPageSize(int maxPageSize);
+    void setPageSize(Integer pageSize);
 
     boolean isPaginationEnabled();
 

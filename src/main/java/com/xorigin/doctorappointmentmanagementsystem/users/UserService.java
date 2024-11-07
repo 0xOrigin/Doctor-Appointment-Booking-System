@@ -17,7 +17,12 @@ public class UserService extends UuidSingleDtoGenericService<User, UserRepositor
 
     @Override
     protected User getInstanceFromCreateDto(UserDTO dto) {
-        return getMapper().toEntityFromCreateDto(dto, passwordEncoder);
+        return getMapper().toEntity(dto, passwordEncoder);
+    }
+
+    @Override
+    protected void updateInstanceFromUpdateDto(User instance, UserDTO userDTO) {
+        super.updateInstanceFromUpdateDto(instance, userDTO);
     }
 
 }

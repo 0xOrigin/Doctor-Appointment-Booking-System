@@ -6,15 +6,11 @@ import java.util.Optional;
 
 public interface BaseGenericMapper<Entity, ListDTO, RetrieveDTO, CreateDTO, UpdateDTO> {
 
-    Entity toEntityFromCreateDto(CreateDTO dto);
-
-    Entity toEntityFromUpdateDto(UpdateDTO dto);
+    Entity toEntity(CreateDTO dto);
 
     @Mapping(target = "id", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void update(@MappingTarget Entity entity, UpdateDTO dto);
-
-    Entity toUpdatedEntity(Entity entity);
+    void updateEntityFromUpdateDto(@MappingTarget Entity entity, UpdateDTO dto);
 
     ListDTO toListDto(Entity entity);
 
@@ -25,11 +21,11 @@ public interface BaseGenericMapper<Entity, ListDTO, RetrieveDTO, CreateDTO, Upda
     }
 
     default <T> T map(Optional<T> value) {
-        return value.orElse(null);
+        return value != null ? value.orElse(null) : null;
     }
 
     default <T> T map(Optional<T> value, T defaultValue) {
-        return value.orElse(defaultValue);
+        return value != null ? value.orElse(defaultValue) : defaultValue;
     }
 
 }

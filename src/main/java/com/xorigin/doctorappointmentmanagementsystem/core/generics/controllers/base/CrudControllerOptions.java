@@ -5,10 +5,8 @@ import org.springframework.beans.factory.annotation.Value;
 public class CrudControllerOptions implements ControllerOptions {
 
     @Value("${spring.data.web.pageable.default-page-size}")
-    private int pageSize;
-
-    @Value("${spring.data.web.pageable.max-page-size}")
-    private int maxPageSize;
+    private Integer defaultPageSize;
+    private Integer pageSize;
 
     private final boolean isPaginationEnabled;
     private final boolean isFindAllAllowed;
@@ -19,7 +17,6 @@ public class CrudControllerOptions implements ControllerOptions {
 
     private CrudControllerOptions(Builder builder) {
         this.pageSize = builder.pageSize;
-        this.maxPageSize = builder.maxPageSize;
         this.isPaginationEnabled = builder.isPaginationEnabled;
         this.isFindAllAllowed = builder.isFindAllAllowed;
         this.isFindOneAllowed = builder.isFindOneAllowed;
@@ -32,12 +29,12 @@ public class CrudControllerOptions implements ControllerOptions {
         return new Builder();
     }
 
-    public int getPageSize() {
-        return pageSize;
+    public Integer getDefaultPageSize() {
+        return defaultPageSize;
     }
 
-    public int getMaxPageSize() {
-        return maxPageSize;
+    public Integer getPageSize() {
+        return pageSize;
     }
 
     public boolean isPaginationEnabled() {
@@ -64,18 +61,13 @@ public class CrudControllerOptions implements ControllerOptions {
         return isDeleteAllowed;
     }
 
-    public void setPageSize(int pageSize) {
+    public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
-    }
-
-    public void setMaxPageSize(int maxPageSize) {
-        this.maxPageSize = maxPageSize;
     }
 
     public static class Builder {
         // Default values
-        private int pageSize;
-        private int maxPageSize;
+        private Integer pageSize;
         private boolean isPaginationEnabled = true;
         private boolean isFindAllAllowed = true;
         private boolean isFindOneAllowed = true;
@@ -83,13 +75,8 @@ public class CrudControllerOptions implements ControllerOptions {
         private boolean isUpdateAllowed = true;
         private boolean isDeleteAllowed = true;
 
-        public Builder pageSize(int pageSize) {
+        public Builder pageSize(Integer pageSize) {
             this.pageSize = pageSize;
-            return this;
-        }
-
-        public Builder maxPageSize(int maxPageSize) {
-            this.maxPageSize = maxPageSize;
             return this;
         }
 

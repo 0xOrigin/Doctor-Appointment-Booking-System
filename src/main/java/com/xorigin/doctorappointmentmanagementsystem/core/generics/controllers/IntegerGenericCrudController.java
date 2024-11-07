@@ -5,25 +5,23 @@ import com.xorigin.doctorappointmentmanagementsystem.core.generics.controllers.b
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.controllers.base.GenericCrudController;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.mappers.base.BaseGenericMapper;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
-import com.xorigin.doctorappointmentmanagementsystem.core.generics.repositories.UuidGenericRepository;
-import com.xorigin.doctorappointmentmanagementsystem.core.generics.services.UuidGenericService;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.repositories.IntegerGenericRepository;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.services.IntegerGenericService;
 
-import java.util.UUID;
-
-public abstract class UuidGenericCrudController<
+public abstract class IntegerGenericCrudController<
         T,
-        S extends UuidGenericService<
+        S extends IntegerGenericService<
             T,
-            ? extends UuidGenericRepository<T>,
+            ? extends IntegerGenericRepository<T>,
             ? extends BaseGenericMapper<T, ?, ?, CreateDTO, UpdateDTO>,
             CreateDTO,
             UpdateDTO
         >,
         CreateDTO,
         UpdateDTO
-    > extends GenericCrudController<T, UUID, S, CreateDTO, UpdateDTO> {
+    > extends GenericCrudController<T, Integer, S, CreateDTO, UpdateDTO> {
 
-    public UuidGenericCrudController(
+    public IntegerGenericCrudController(
             ControllerOptions options,
             ControllerUtils utils,
             UserProvider userProvider,

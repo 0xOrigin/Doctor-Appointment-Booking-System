@@ -13,15 +13,11 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
 
 public abstract class GenericCrudController<
         T,
@@ -41,61 +37,72 @@ public abstract class GenericCrudController<
     private final ControllerOptions options;
     private final ControllerUtils utils;
     private final UserProvider userProvider;
-    private final Optional<? extends Specification<T>> spec;
     private final S service;
 
     public GenericCrudController(
             ControllerOptions options,
             ControllerUtils utils,
             UserProvider userProvider,
-            Optional<? extends Specification<T>> spec,
             S service
     ) {
         this.options = options;
         this.utils = utils;
         this.userProvider = userProvider;
-        this.spec = spec;
         this.service = service;
     }
 
-    protected Long getCount() {
-        return service.getRepository().count(spec.orElse(null));
+    public ControllerOptions getOptions() {
+        return options;
     }
 
-    protected Page<T> getPage(Pageable pageable) {
-        PageRequest pageRequest = PageRequest.of(utils.getPageNumber(pageable), utils.getPageSize(pageable, options));
-        return service.getRepository().findAll(spec.orElse(null), pageRequest);
+    public ControllerUtils getUtils() {
+        return utils;
     }
 
-    protected List<?> mapInstancesToList(List<T> instances, Function<T, ?> mapper) {
-        return instances.stream().map(mapper).toList();
+    public UserProvider getUserProvider() {
+        return userProvider;
+    }
+
+    public S getService() {
+        return service;
+    }
+
+    public PageRequest getPageRequest(Pageable pageable) {
+        return PageRequest.of(getUtils().getPageNumber(pageable), getUtils().getPageSize(pageable, getOptions()));
     }
 
     protected T performCreate(CreateDTO dto) {
-        return service.create(dto);
+        return getService().create(dto);
     }
 
-    protected T performUpdate(UpdateDTO dto, ID id) {
-        return service.update(dto, id);
+    protected T performUpdate(ID id, UpdateDTO dto) {
+        T instance = getService().findById(id);
+        return getService().update(instance, dto);
+    }
+
+    protected void performDelete(ID id) {
+        T instance = getService().findById(id);
+        getService().delete(instance);
     }
 
     @GetMapping
-    public ResponseEntity<?> list(HttpServletRequest request, Pageable pageable) {
-        if (!options.isFindAllAllowed()) {
-            utils.methodNotAllowed(request.getMethod());
+    public ResponseEntity<?> findAll(HttpServletRequest request, Pageable pageable) {
+        if (!getOptions().isFindAllAllowed()) {
+            getUtils().methodNotAllowed(request.getMethod());
         }
 
-        if (!options.isPaginationEnabled()) {
-            Long count = getCount();
-            List<?> instances = mapInstancesToList(service.getRepository().findAll(spec.orElse(null)), service.getMapper()::toListDto);
-            ApiResponse<?> apiResponse = getApiResponse("Success", instances, count, null);
+        if (!getOptions().isPaginationEnabled()) {
+            Long count = getService().getCount();
+            List<T> instances = getService().findAll();
+            List<?> mappedInstances = getService().getMappedFindAll(instances);
+            ApiResponse<?> apiResponse = getApiResponse("Success", mappedInstances, count, null);
             return ResponseEntity.ok().body(apiResponse);
         }
 
-        Page<T> page = getPage(pageable);
+        Page<T> page = getService().getPage(getPageRequest(pageable));
         ApiResponse<?> apiResponse = getApiResponse(
                 "Success",
-                mapInstancesToList(page.getContent(), service.getMapper()::toListDto),
+                getService().getMappedFindAll(page),
                 page.getTotalElements(),
                 page
         );
@@ -103,49 +110,45 @@ public abstract class GenericCrudController<
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> retrieve(HttpServletRequest request, @PathVariable ID id) {
-        if (!options.isFindOneAllowed()) {
-            utils.methodNotAllowed(request.getMethod());
+    public ResponseEntity<?> findOne(HttpServletRequest request, @PathVariable ID id) {
+        if (!getOptions().isFindOneAllowed()) {
+            getUtils().methodNotAllowed(request.getMethod());
         }
 
-        return service.getRepository().findById(id)
-                .map(instance -> ResponseEntity.ok().body(getApiResponse("Success", instance, null, null)))
-                .orElse(ResponseEntity.notFound().build());
+        T instance = getService().findById(id);
+        ApiResponse<?> apiResponse = getApiResponse("Success", getService().getMappedFindOne(instance), null, null);
+        return ResponseEntity.ok().body(apiResponse);
     }
 
     @PostMapping
     public ResponseEntity<?> create(HttpServletRequest request, @Valid @RequestBody CreateDTO dto) {
-        if (!options.isCreateAllowed()) {
-            utils.methodNotAllowed(request.getMethod());
+        if (!getOptions().isCreateAllowed()) {
+            getUtils().methodNotAllowed(request.getMethod());
         }
 
         T instance = performCreate(dto);
-        ApiResponse<?> apiResponse = getApiResponse("Success", service.getMapper().toRetrieveDto(instance), null, null);
+        ApiResponse<?> apiResponse = getApiResponse("Success", getService().getMappedFindOne(instance), null, null);
         return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(HttpServletRequest request, @PathVariable ID id, @Valid @RequestBody UpdateDTO dto) {
-        if (!options.isUpdateAllowed()) {
-            utils.methodNotAllowed(request.getMethod());
+        if (!getOptions().isUpdateAllowed()) {
+            getUtils().methodNotAllowed(request.getMethod());
         }
 
-        T instance = performUpdate(dto, id);
-        ApiResponse<?> apiResponse = getApiResponse("Success", service.getMapper().toRetrieveDto(instance), null, null);
+        T instance = performUpdate(id, dto);
+        ApiResponse<?> apiResponse = getApiResponse("Success", getService().getMappedFindOne(instance), null, null);
         return ResponseEntity.ok().body(apiResponse);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(HttpServletRequest request, @PathVariable ID id) {
-        if (!options.isDeleteAllowed()) {
-            utils.methodNotAllowed(request.getMethod());
+        if (!getOptions().isDeleteAllowed()) {
+            getUtils().methodNotAllowed(request.getMethod());
         }
 
-        if (!service.getRepository().existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-
-        service.getRepository().deleteById(id);
+        performDelete(id);
         return ResponseEntity.noContent().build();
     }
 

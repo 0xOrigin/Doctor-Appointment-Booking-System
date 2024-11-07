@@ -4,21 +4,21 @@ import com.xorigin.doctorappointmentmanagementsystem.core.generics.controllers.b
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.controllers.base.ControllerUtils;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.mappers.base.BaseGenericMapper;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
-import com.xorigin.doctorappointmentmanagementsystem.core.generics.repositories.UuidGenericRepository;
-import com.xorigin.doctorappointmentmanagementsystem.core.generics.services.UuidSingleDtoGenericService;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.repositories.StringGenericRepository;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.services.StringSingleDtoGenericService;
 
-public abstract class UuidSingleDtoGenericCrudController<
+public abstract class StringSingleDtoGenericCrudController<
         T,
-        S extends UuidSingleDtoGenericService<
+        S extends StringSingleDtoGenericService<
             T,
-            ? extends UuidGenericRepository<T>,
+            ? extends StringGenericRepository<T>,
             ? extends BaseGenericMapper<T, ?, ?, DTO, DTO>,
             DTO
         >,
         DTO
-    > extends UuidGenericCrudController<T, S, DTO, DTO> {
+    > extends StringGenericCrudController<T, S, DTO, DTO> {
 
-    public UuidSingleDtoGenericCrudController(
+    public StringSingleDtoGenericCrudController(
             ControllerOptions options,
             ControllerUtils utils,
             UserProvider userProvider,
