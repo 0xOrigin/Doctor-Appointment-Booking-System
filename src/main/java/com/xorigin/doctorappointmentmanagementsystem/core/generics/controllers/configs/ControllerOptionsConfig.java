@@ -25,6 +25,7 @@ public class ControllerOptionsConfig {
                 .isPaginationEnabled(true)
                 .isCreateAllowed(false)
                 .isUpdateAllowed(false)
+                .isPartialUpdateAllowed(false)
                 .isDeleteAllowed(false)
                 .build();
     }
@@ -44,6 +45,7 @@ public class ControllerOptionsConfig {
                 .isPaginationEnabled(false)
                 .isCreateAllowed(false)
                 .isUpdateAllowed(false)
+                .isPartialUpdateAllowed(false)
                 .isDeleteAllowed(false)
                 .build();
     }
@@ -56,6 +58,7 @@ public class ControllerOptionsConfig {
                 .isFindAllAllowed(false)
                 .isCreateAllowed(false)
                 .isUpdateAllowed(false)
+                .isPartialUpdateAllowed(false)
                 .isDeleteAllowed(false)
                 .build();
     }
@@ -68,6 +71,7 @@ public class ControllerOptionsConfig {
                 .isFindAllAllowed(false)
                 .isFindOneAllowed(false)
                 .isUpdateAllowed(false)
+                .isPartialUpdateAllowed(false)
                 .isDeleteAllowed(false)
                 .build();
     }
@@ -93,6 +97,7 @@ public class ControllerOptionsConfig {
                 .isFindOneAllowed(false)
                 .isCreateAllowed(false)
                 .isUpdateAllowed(false)
+                .isPartialUpdateAllowed(false)
                 .build();
     }
 

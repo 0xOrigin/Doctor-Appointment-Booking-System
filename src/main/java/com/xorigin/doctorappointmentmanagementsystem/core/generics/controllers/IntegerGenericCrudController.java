@@ -13,13 +13,15 @@ public abstract class IntegerGenericCrudController<
         S extends IntegerGenericService<
             T,
             ? extends IntegerGenericRepository<T>,
-            ? extends BaseGenericMapper<T, ?, ?, CreateDTO, UpdateDTO>,
+            ? extends BaseGenericMapper<T, ?, ?, CreateDTO, UpdateDTO, PartialUpdateDTO>,
             CreateDTO,
-            UpdateDTO
+            UpdateDTO,
+            PartialUpdateDTO
         >,
         CreateDTO,
-        UpdateDTO
-    > extends GenericCrudController<T, Integer, S, CreateDTO, UpdateDTO> {
+        UpdateDTO,
+        PartialUpdateDTO
+    > extends GenericCrudController<T, Integer, S, CreateDTO, UpdateDTO, PartialUpdateDTO> {
 
     public IntegerGenericCrudController(
             ControllerOptions options,

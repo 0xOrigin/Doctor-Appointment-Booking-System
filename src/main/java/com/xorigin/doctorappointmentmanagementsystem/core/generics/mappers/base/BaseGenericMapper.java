@@ -4,13 +4,17 @@ import org.mapstruct.*;
 
 import java.util.Optional;
 
-public interface BaseGenericMapper<Entity, ListDTO, RetrieveDTO, CreateDTO, UpdateDTO> {
+public interface BaseGenericMapper<Entity, ListDTO, RetrieveDTO, CreateDTO, UpdateDTO, PartialUpdateDTO> {
 
     Entity toEntity(CreateDTO dto);
 
     @Mapping(target = "id", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromUpdateDto(@MappingTarget Entity entity, UpdateDTO dto);
+
+    @Mapping(target = "id", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromPartialUpdateDto(@MappingTarget Entity entity, PartialUpdateDTO dto);
 
     ListDTO toListDto(Entity entity);
 

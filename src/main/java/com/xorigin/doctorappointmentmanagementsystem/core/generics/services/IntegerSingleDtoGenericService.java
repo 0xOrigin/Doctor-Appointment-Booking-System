@@ -8,9 +8,9 @@ import org.springframework.data.jpa.domain.Specification;
 public abstract class IntegerSingleDtoGenericService<
         T,
         R extends IntegerGenericRepository<T>,
-        M extends BaseGenericMapper<T, ?, ?, DTO, DTO>,
+        M extends BaseGenericMapper<T, ?, ?, DTO, DTO, DTO>,
         DTO
-    > extends IntegerGenericService<T, R, M, DTO, DTO> {
+    > extends IntegerGenericService<T, R, M, DTO, DTO, DTO> {
 
     public IntegerSingleDtoGenericService(UserProvider userProvider, R repository, M mapper, Specification<T> spec) {
         super(userProvider, repository, mapper, spec);

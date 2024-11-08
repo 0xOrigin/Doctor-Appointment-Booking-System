@@ -13,13 +13,15 @@ public abstract class StringGenericCrudController<
         S extends StringGenericService<
             T,
             ? extends StringGenericRepository<T>,
-            ? extends BaseGenericMapper<T, ?, ?, CreateDTO, UpdateDTO>,
+            ? extends BaseGenericMapper<T, ?, ?, CreateDTO, UpdateDTO, PartialUpdateDTO>,
             CreateDTO,
-            UpdateDTO
+            UpdateDTO,
+            PartialUpdateDTO
         >,
         CreateDTO,
-        UpdateDTO
-    > extends GenericCrudController<T, String, S, CreateDTO, UpdateDTO> {
+        UpdateDTO,
+        PartialUpdateDTO
+    > extends GenericCrudController<T, String, S, CreateDTO, UpdateDTO, PartialUpdateDTO> {
 
     public StringGenericCrudController(
             ControllerOptions options,

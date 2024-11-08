@@ -12,11 +12,11 @@ public abstract class IntegerSingleDtoGenericCrudController<
         S extends IntegerSingleDtoGenericService<
             T,
             ? extends IntegerGenericRepository<T>,
-            ? extends BaseGenericMapper<T, ?, ?, DTO, DTO>,
+            ? extends BaseGenericMapper<T, ?, ?, DTO, DTO, DTO>,
             DTO
         >,
         DTO
-    > extends IntegerGenericCrudController<T, S, DTO, DTO> {
+    > extends IntegerGenericCrudController<T, S, DTO, DTO, DTO> {
 
     public IntegerSingleDtoGenericCrudController(
             ControllerOptions options,

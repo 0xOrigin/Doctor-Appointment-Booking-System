@@ -18,6 +18,8 @@ public interface ControllerOptions {
 
     boolean isUpdateAllowed();
 
+    boolean isPartialUpdateAllowed();
+
     boolean isDeleteAllowed();
 
 }

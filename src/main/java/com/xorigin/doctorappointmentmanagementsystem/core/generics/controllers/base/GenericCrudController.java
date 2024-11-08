@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,12 +27,14 @@ public abstract class GenericCrudController<
                 T,
                 ID,
                 ? extends BaseGenericRepository<T, ID>,
-                ? extends BaseGenericMapper<T, ?, ?, CreateDTO, UpdateDTO>,
+                ? extends BaseGenericMapper<T, ?, ?, CreateDTO, UpdateDTO, PartialUpdateDTO>,
                 CreateDTO,
-                UpdateDTO
+                UpdateDTO,
+                PartialUpdateDTO
         >,
         CreateDTO,
-        UpdateDTO
+        UpdateDTO,
+        PartialUpdateDTO
     > {
 
     private final ControllerOptions options;
@@ -80,6 +83,11 @@ public abstract class GenericCrudController<
         return getService().update(instance, dto);
     }
 
+    protected T performPartialUpdate(ID id, PartialUpdateDTO dto) {
+        T instance = getService().findById(id);
+        return getService().partialUpdate(instance, dto);
+    }
+
     protected void performDelete(ID id) {
         T instance = getService().findById(id);
         getService().delete(instance);
@@ -120,8 +128,7 @@ public abstract class GenericCrudController<
         return ResponseEntity.ok().body(apiResponse);
     }
 
-    @PostMapping
-    public ResponseEntity<?> create(HttpServletRequest request, @Valid @RequestBody CreateDTO dto) {
+    public ResponseEntity<?> create(HttpServletRequest request, CreateDTO dto) {
         if (!getOptions().isCreateAllowed()) {
             getUtils().methodNotAllowed(request.getMethod());
         }
@@ -131,8 +138,17 @@ public abstract class GenericCrudController<
         return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> update(HttpServletRequest request, @PathVariable ID id, @Valid @RequestBody UpdateDTO dto) {
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> createJson(HttpServletRequest request, @Valid @RequestBody CreateDTO dto) {
+        return create(request, dto);
+    }
+
+    @PostMapping(consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<?> createFormData(HttpServletRequest request, @Valid @ModelAttribute CreateDTO dto) {
+        return create(request, dto);
+    }
+
+    public ResponseEntity<?> update(HttpServletRequest request, ID id, UpdateDTO dto) {
         if (!getOptions().isUpdateAllowed()) {
             getUtils().methodNotAllowed(request.getMethod());
         }
@@ -140,6 +156,36 @@ public abstract class GenericCrudController<
         T instance = performUpdate(id, dto);
         ApiResponse<?> apiResponse = getApiResponse("Success", getService().getMappedFindOne(instance), null, null);
         return ResponseEntity.ok().body(apiResponse);
+    }
+
+    @PutMapping(value = "/{id}", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> updateJson(HttpServletRequest request, @PathVariable ID id, @Valid @RequestBody UpdateDTO dto) {
+        return update(request, id, dto);
+    }
+
+    @PutMapping(value = "/{id}", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<?> updateFormData(HttpServletRequest request, @PathVariable ID id, @Valid @ModelAttribute UpdateDTO dto) {
+        return update(request, id, dto);
+    }
+
+    public ResponseEntity<?> partialUpdate(HttpServletRequest request, ID id, PartialUpdateDTO dto) {
+        if (!getOptions().isPartialUpdateAllowed()) {
+            getUtils().methodNotAllowed(request.getMethod());
+        }
+
+        T instance = performPartialUpdate(id, dto);
+        ApiResponse<?> apiResponse = getApiResponse("Success", getService().getMappedFindOne(instance), null, null);
+        return ResponseEntity.ok().body(apiResponse);
+    }
+
+    @PatchMapping(value = "/{id}", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> partialUpdateJson(HttpServletRequest request, @PathVariable ID id, @Valid @RequestBody PartialUpdateDTO dto) {
+        return partialUpdate(request, id, dto);
+    }
+
+    @PatchMapping(value = "/{id}", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<?> partialUpdateFormData(HttpServletRequest request, @PathVariable ID id, @Valid @ModelAttribute PartialUpdateDTO dto) {
+        return partialUpdate(request, id, dto);
     }
 
     @DeleteMapping("/{id}")

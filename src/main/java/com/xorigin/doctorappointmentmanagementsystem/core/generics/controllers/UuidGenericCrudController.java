@@ -15,13 +15,15 @@ public abstract class UuidGenericCrudController<
         S extends UuidGenericService<
             T,
             ? extends UuidGenericRepository<T>,
-            ? extends BaseGenericMapper<T, ?, ?, CreateDTO, UpdateDTO>,
+            ? extends BaseGenericMapper<T, ?, ?, CreateDTO, UpdateDTO, PartialUpdateDTO>,
             CreateDTO,
-            UpdateDTO
+            UpdateDTO,
+            PartialUpdateDTO
         >,
         CreateDTO,
-        UpdateDTO
-    > extends GenericCrudController<T, UUID, S, CreateDTO, UpdateDTO> {
+        UpdateDTO,
+        PartialUpdateDTO
+    > extends GenericCrudController<T, UUID, S, CreateDTO, UpdateDTO, PartialUpdateDTO> {
 
     public UuidGenericCrudController(
             ControllerOptions options,

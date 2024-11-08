@@ -12,11 +12,11 @@ public abstract class UuidSingleDtoGenericCrudController<
         S extends UuidSingleDtoGenericService<
             T,
             ? extends UuidGenericRepository<T>,
-            ? extends BaseGenericMapper<T, ?, ?, DTO, DTO>,
+            ? extends BaseGenericMapper<T, ?, ?, DTO, DTO, DTO>,
             DTO
         >,
         DTO
-    > extends UuidGenericCrudController<T, S, DTO, DTO> {
+    > extends UuidGenericCrudController<T, S, DTO, DTO, DTO> {
 
     public UuidSingleDtoGenericCrudController(
             ControllerOptions options,

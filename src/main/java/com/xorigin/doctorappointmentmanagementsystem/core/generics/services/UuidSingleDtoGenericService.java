@@ -8,9 +8,9 @@ import org.springframework.data.jpa.domain.Specification;
 public abstract class UuidSingleDtoGenericService<
         T,
         R extends UuidGenericRepository<T>,
-        M extends BaseGenericMapper<T, ?, ?, DTO, DTO>,
+        M extends BaseGenericMapper<T, ?, ?, DTO, DTO, DTO>,
         DTO
-    > extends UuidGenericService<T, R, M, DTO, DTO> {
+    > extends UuidGenericService<T, R, M, DTO, DTO, DTO> {
 
     public UuidSingleDtoGenericService(UserProvider userProvider, R repository, M mapper, Specification<T> spec) {
         super(userProvider, repository, mapper, spec);

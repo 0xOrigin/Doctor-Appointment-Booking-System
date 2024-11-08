@@ -14,9 +14,10 @@ public abstract class BaseGenericService<
         T,
         ID,
         R extends BaseGenericRepository<T, ID>,
-        M extends BaseGenericMapper<T, ?, ?, CreateDTO, UpdateDTO>,
+        M extends BaseGenericMapper<T, ?, ?, CreateDTO, UpdateDTO, PartialUpdateDTO>,
         CreateDTO,
-        UpdateDTO
+        UpdateDTO,
+        PartialUpdateDTO
     > {
 
     private final UserProvider userProvider;
@@ -55,9 +56,13 @@ public abstract class BaseGenericService<
 
     protected void preUpdate(T instance, UpdateDTO dto) {}
 
+    protected void prePartialUpdate(T instance, PartialUpdateDTO dto) {}
+
     protected void postCreate(T instance, CreateDTO dto) {}
 
     protected void postUpdate(T instance, UpdateDTO dto) {}
+
+    protected void postPartialUpdate(T instance, PartialUpdateDTO dto) {}
 
     protected List<?> mapInstancesToList(List<T> instances, Function<T, ?> mapper) {
         return instances.stream().map(mapper).toList();
@@ -104,6 +109,10 @@ public abstract class BaseGenericService<
         getMapper().updateEntityFromUpdateDto(instance, dto);
     }
 
+    protected void updateInstanceFromPartialUpdateDto(T instance, PartialUpdateDTO dto) {
+        getMapper().updateEntityFromPartialUpdateDto(instance, dto);
+    }
+
     public T create(CreateDTO dto) {
         T instance = getInstanceFromCreateDto(dto);
         preCreate(instance, dto);
@@ -117,6 +126,14 @@ public abstract class BaseGenericService<
         updateInstanceFromUpdateDto(instance, dto);
         instance = getRepository().save(instance);
         postUpdate(instance, dto);
+        return instance;
+    }
+
+    public T partialUpdate(T instance, PartialUpdateDTO dto) {
+        prePartialUpdate(instance, dto);
+        updateInstanceFromPartialUpdateDto(instance, dto);
+        instance = getRepository().save(instance);
+        postPartialUpdate(instance, dto);
         return instance;
     }
 

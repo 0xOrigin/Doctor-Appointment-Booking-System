@@ -13,16 +13,18 @@ public class CrudControllerOptions implements ControllerOptions {
     private final boolean isFindOneAllowed;
     private final boolean isCreateAllowed;
     private final boolean isUpdateAllowed;
+    private final boolean isPartialUpdateAllowed;
     private final boolean isDeleteAllowed;
 
     private CrudControllerOptions(Builder builder) {
-        this.pageSize = builder.pageSize;
-        this.isPaginationEnabled = builder.isPaginationEnabled;
-        this.isFindAllAllowed = builder.isFindAllAllowed;
-        this.isFindOneAllowed = builder.isFindOneAllowed;
-        this.isCreateAllowed = builder.isCreateAllowed;
-        this.isUpdateAllowed = builder.isUpdateAllowed;
-        this.isDeleteAllowed = builder.isDeleteAllowed;
+        this.pageSize = builder.getPageSize();
+        this.isPaginationEnabled = builder.getIsPaginationEnabled();
+        this.isFindAllAllowed = builder.getIsFindAllAllowed();
+        this.isFindOneAllowed = builder.getIsFindOneAllowed();
+        this.isCreateAllowed = builder.getIsCreateAllowed();
+        this.isUpdateAllowed = builder.getIsUpdateAllowed();
+        this.isPartialUpdateAllowed = builder.getIsPartialUpdateAllowed();
+        this.isDeleteAllowed = builder.getIsDeleteAllowed();
     }
 
     public static Builder builder() {
@@ -57,6 +59,10 @@ public class CrudControllerOptions implements ControllerOptions {
         return isUpdateAllowed;
     }
 
+    public boolean isPartialUpdateAllowed() {
+        return isPartialUpdateAllowed;
+    }
+
     public boolean isDeleteAllowed() {
         return isDeleteAllowed;
     }
@@ -73,6 +79,7 @@ public class CrudControllerOptions implements ControllerOptions {
         private boolean isFindOneAllowed = true;
         private boolean isCreateAllowed = true;
         private boolean isUpdateAllowed = true;
+        private boolean isPartialUpdateAllowed = true;
         private boolean isDeleteAllowed = true;
 
         public Builder pageSize(Integer pageSize) {
@@ -105,9 +112,46 @@ public class CrudControllerOptions implements ControllerOptions {
             return this;
         }
 
+        public Builder isPartialUpdateAllowed(boolean isPartialUpdateAllowed) {
+            this.isPartialUpdateAllowed = isPartialUpdateAllowed;
+            return this;
+        }
+
         public Builder isDeleteAllowed(boolean isDeleteAllowed) {
             this.isDeleteAllowed = isDeleteAllowed;
             return this;
+        }
+
+        public Integer getPageSize() {
+            return pageSize;
+        }
+
+        public boolean getIsPaginationEnabled() {
+            return isPaginationEnabled;
+        }
+
+        public boolean getIsFindAllAllowed() {
+            return isFindAllAllowed;
+        }
+
+        public boolean getIsFindOneAllowed() {
+            return isFindOneAllowed;
+        }
+
+        public boolean getIsCreateAllowed() {
+            return isCreateAllowed;
+        }
+
+        public boolean getIsUpdateAllowed() {
+            return isUpdateAllowed;
+        }
+
+        public boolean getIsPartialUpdateAllowed() {
+            return isPartialUpdateAllowed;
+        }
+
+        public boolean getIsDeleteAllowed() {
+            return isDeleteAllowed;
         }
 
         public CrudControllerOptions build() {

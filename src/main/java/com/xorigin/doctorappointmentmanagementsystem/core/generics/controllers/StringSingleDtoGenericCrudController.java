@@ -12,11 +12,11 @@ public abstract class StringSingleDtoGenericCrudController<
         S extends StringSingleDtoGenericService<
             T,
             ? extends StringGenericRepository<T>,
-            ? extends BaseGenericMapper<T, ?, ?, DTO, DTO>,
+            ? extends BaseGenericMapper<T, ?, ?, DTO, DTO, DTO>,
             DTO
         >,
         DTO
-    > extends StringGenericCrudController<T, S, DTO, DTO> {
+    > extends StringGenericCrudController<T, S, DTO, DTO, DTO> {
 
     public StringSingleDtoGenericCrudController(
             ControllerOptions options,

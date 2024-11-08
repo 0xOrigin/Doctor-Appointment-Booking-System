@@ -12,11 +12,11 @@ public abstract class LongSingleDtoGenericCrudController<
         S extends LongSingleDtoGenericService<
             T,
             ? extends LongGenericRepository<T>,
-            ? extends BaseGenericMapper<T, ?, ?, DTO, DTO>,
+            ? extends BaseGenericMapper<T, ?, ?, DTO, DTO, DTO>,
             DTO
         >,
         DTO
-    > extends LongGenericCrudController<T, S, DTO, DTO> {
+    > extends LongGenericCrudController<T, S, DTO, DTO, DTO> {
 
     public LongSingleDtoGenericCrudController(
             ControllerOptions options,

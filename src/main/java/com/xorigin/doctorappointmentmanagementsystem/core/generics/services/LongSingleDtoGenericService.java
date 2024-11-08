@@ -8,9 +8,9 @@ import org.springframework.data.jpa.domain.Specification;
 public abstract class LongSingleDtoGenericService<
         T,
         R extends LongGenericRepository<T>,
-        M extends BaseGenericMapper<T, ?, ?, DTO, DTO>,
+        M extends BaseGenericMapper<T, ?, ?, DTO, DTO, DTO>,
         DTO
-    > extends LongGenericService<T, R, M, DTO, DTO> {
+    > extends LongGenericService<T, R, M, DTO, DTO, DTO> {
 
     public LongSingleDtoGenericService(UserProvider userProvider, R repository, M mapper, Specification<T> spec) {
         super(userProvider, repository, mapper, spec);

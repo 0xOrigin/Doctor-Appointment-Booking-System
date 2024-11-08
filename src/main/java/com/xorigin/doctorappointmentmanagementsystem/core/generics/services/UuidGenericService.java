@@ -11,10 +11,11 @@ import java.util.UUID;
 public abstract class UuidGenericService<
         T,
         R extends UuidGenericRepository<T>,
-        M extends BaseGenericMapper<T, ?, ?, CreateDTO, UpdateDTO>,
+        M extends BaseGenericMapper<T, ?, ?, CreateDTO, UpdateDTO, PartialUpdateDTO>,
         CreateDTO,
-        UpdateDTO
-    > extends BaseGenericService<T, UUID, R, M, CreateDTO, UpdateDTO> {
+        UpdateDTO,
+        PartialUpdateDTO
+    > extends BaseGenericService<T, UUID, R, M, CreateDTO, UpdateDTO, PartialUpdateDTO> {
 
     public UuidGenericService(UserProvider userProvider, R repository, M mapper, Specification<T> spec) {
         super(userProvider, repository, mapper, spec);
