@@ -2,7 +2,6 @@ package com.xorigin.doctorappointmentmanagementsystem.core.entities;
 
 import com.xorigin.doctorappointmentmanagementsystem.users.User;
 import jakarta.persistence.*;
-import lombok.Getter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;

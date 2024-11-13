@@ -8,6 +8,9 @@ import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -37,6 +40,12 @@ public class User extends BaseAuditEntity implements UserDetails {
     @ColumnDefault("true")
     @Builder.Default
     private Boolean isActive = true;
+
+    private OffsetDateTime lastLogin;
+
+    private LocalDate dateOfBirth;
+
+    private LocalTime enTime;
 
     @Override
     public String getUsername() {

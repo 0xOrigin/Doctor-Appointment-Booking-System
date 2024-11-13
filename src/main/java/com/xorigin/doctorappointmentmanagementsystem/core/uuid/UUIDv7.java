@@ -1,6 +1,5 @@
 package com.xorigin.doctorappointmentmanagementsystem.core.uuid;
 
-
 import org.hibernate.annotations.IdGeneratorType;
 
 import java.lang.annotation.Retention;
@@ -11,7 +10,8 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @IdGeneratorType(UuidV7Generator.class)
-@Target({METHOD,FIELD})
+@Target({METHOD, FIELD})
 @Retention(RUNTIME)
 public @interface UUIDv7 {
+
 }

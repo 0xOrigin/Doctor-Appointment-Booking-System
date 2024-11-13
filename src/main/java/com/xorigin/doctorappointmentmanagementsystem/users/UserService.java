@@ -2,7 +2,6 @@ package com.xorigin.doctorappointmentmanagementsystem.users;
 
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.services.UuidSingleDtoGenericService;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +10,7 @@ public class UserService extends UuidSingleDtoGenericService<User, UserRepositor
 
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserProvider userProvider, UserRepository repository, UserMapper mapper, Specification<User> spec, PasswordEncoder passwordEncoder) {
+    public UserService(UserProvider userProvider, UserRepository repository, UserMapper mapper, UserSpecification spec, PasswordEncoder passwordEncoder) {
         super(userProvider, repository, mapper, spec);
         this.passwordEncoder = passwordEncoder;
     }
