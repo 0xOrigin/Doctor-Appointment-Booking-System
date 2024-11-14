@@ -15,6 +15,7 @@ public class FilterBuilder<T> implements QueryFilterBuilder<T> {
     private final PathGenerator<T> filterPathGenerator;
     private final FilterValidator filterValidator;
     private final Map<String, Set<Operator>> fieldOperators = new HashMap<>();
+    private final Map<String, CustomFilterWrapper<T>> customFieldFilters = new HashMap<>();
 
     public FilterBuilder(FilterParser filterParser, PathGenerator<T> filterPathGenerator, FilterValidator filterValidator) {
         this.filterParser = filterParser;
@@ -22,30 +23,55 @@ public class FilterBuilder<T> implements QueryFilterBuilder<T> {
         this.filterValidator = filterValidator;
     }
 
+    @Override
     public QueryFilterBuilder<T> addFilter(String fieldName, Operator... operators) {
         filterValidator.validateFilterAddition(fieldName, operators);
         fieldOperators.put(fieldName, new HashSet<>(Arrays.asList(operators)));
         return this;
     }
 
-    public Predicate buildFilterPredicate(Root<T> root, CriteriaBuilder cb) {
-        List<Predicate> predicates = new ArrayList<>();
-        List<FilterWrapper> filterWrappers = filterParser.parse();
+    @Override
+    public QueryFilterBuilder<T> addFilter(String fieldName, Class<? extends Comparable<?>> dataType, CustomFilterFunction<T> filterFunction) {
+        filterValidator.validateCustomFilterAddition(fieldName, dataType, filterFunction);
+        AbstractFilterField<?> filterField = FilterRegistry.getFieldFilter(dataType);
+        customFieldFilters.put(fieldName, new CustomFilterWrapper<T>(filterField, filterFunction));
+        return this;
+    }
 
-        for (FilterWrapper filterWrapper : filterWrappers) {
-            if (!fieldOperators.containsKey(filterWrapper.getField()))
-                continue;
+    public Predicate buildFilterPredicate(Root<T> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+        List<Predicate> predicates = filterParser.parse().stream()
+                .map(filterWrapper -> buildPredicateForWrapper(root, criteriaQuery, cb, filterWrapper))
+                .filter(Objects::nonNull)
+                .toList();
 
-            if (!fieldOperators.get(filterWrapper.getField()).contains(filterWrapper.getOperator()))
-                continue;
+        return predicates.isEmpty() ? cb.conjunction() : cb.and(predicates.toArray(new Predicate[0]));
+    }
 
-            Predicate predicate = createPredicate(root, cb, filterWrapper);
-            if (predicate != null)
-                predicates.add(predicate);
+    private Predicate buildPredicateForWrapper(Root<T> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb, FilterWrapper filterWrapper) {
+        Predicate customPredicate = buildCustomFieldPredicate(root, criteriaQuery, cb, filterWrapper);
+        if (customPredicate != null)
+            return customPredicate;
 
-        }
+        if (isValidFieldOperator(filterWrapper))
+            return createPredicate(root, cb, filterWrapper);
 
-        return cb.and(predicates.toArray(new Predicate[0]));
+        return null;
+    }
+
+    private Predicate buildCustomFieldPredicate(Root<T> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb, FilterWrapper filterWrapper) {
+        CustomFilterWrapper<T> customFilter = customFieldFilters.get(filterWrapper.getOriginalFieldName());
+        if (customFilter == null)
+            return null;
+
+        List<?> values = filterWrapper.getValues().stream()
+                .map(customFilter.getFilterField()::cast)
+                .toList();
+        return customFilter.getCustomFilterFunction().apply(root, criteriaQuery, cb, values);
+    }
+
+    private boolean isValidFieldOperator(FilterWrapper filterWrapper) {
+        return fieldOperators.containsKey(filterWrapper.getField()) &&
+                fieldOperators.get(filterWrapper.getField()).contains(filterWrapper.getOperator());
     }
 
     private Predicate createPredicate(Root<T> root, CriteriaBuilder builder, FilterWrapper filterWrapper) {

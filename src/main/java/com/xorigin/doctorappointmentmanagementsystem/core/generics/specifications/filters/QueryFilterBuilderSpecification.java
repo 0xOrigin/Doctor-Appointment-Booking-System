@@ -5,13 +5,14 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.domain.Specification;
 
 public abstract class QueryFilterBuilderSpecification<T> implements Specification<T> {
 
     private final QueryFilterBuilder<T> queryFilterBuilder;
 
-    public QueryFilterBuilderSpecification(QueryFilterBuilder<T> queryFilterBuilder) {
+    public QueryFilterBuilderSpecification(@NotNull QueryFilterBuilder<T> queryFilterBuilder) {
         this.queryFilterBuilder = queryFilterBuilder;
 
         if (queryFilterBuilder != null)
@@ -29,7 +30,7 @@ public abstract class QueryFilterBuilderSpecification<T> implements Specificatio
         if (queryFilterBuilder == null)
             return criteriaBuilder.conjunction();
 
-        return queryFilterBuilder.buildFilterPredicate(root, criteriaBuilder);
+        return queryFilterBuilder.buildFilterPredicate(root, query, criteriaBuilder);
     }
 
 }

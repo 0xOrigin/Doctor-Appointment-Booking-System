@@ -32,7 +32,7 @@ public class FilterOperatorRegistry {
         addOperator(Operator.NOT_BETWEEN, new NotBetween());
     }
 
-    public static synchronized void addOperator(Operator operator, FilterOperator filterOperator) {
+    private static synchronized void addOperator(Operator operator, FilterOperator filterOperator) {
         operatorMap.put(operator, filterOperator);
     }
 

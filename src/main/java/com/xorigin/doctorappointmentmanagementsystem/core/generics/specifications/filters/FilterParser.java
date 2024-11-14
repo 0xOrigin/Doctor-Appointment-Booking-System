@@ -57,7 +57,7 @@ public class FilterParser implements Parser {
                 fieldPath = paramName; // Entire paramName is treated as the field
             }
 
-            wrapperList.add(new FilterWrapper(fieldPath, operator, Arrays.stream(paramValue.split(",")).toList()));
+            wrapperList.add(new FilterWrapper(fieldPath, paramName, operator, Arrays.stream(paramValue.split(",")).toList()));
         }
 
         return wrapperList;

@@ -35,6 +35,7 @@ public class FilterRegistry {
     }
 
     public static synchronized void addFieldFilter(Class<? extends Comparable<?>> dataType, AbstractFilterField<?> filterClass) {
+        // This method is intentionally public in case if you want to add custom filters
         fieldConfigMap.put(dataType, filterClass);
     }
 
