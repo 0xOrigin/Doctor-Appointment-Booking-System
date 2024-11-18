@@ -1,6 +1,5 @@
 package com.xorigin.doctorappointmentmanagementsystem.core.filefields;
 
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 
 import java.io.IOException;
@@ -36,13 +35,13 @@ public interface FlexStorageAdapter {
     Boolean deleteFile(String identifier) throws IOException;
 
     /**
-     * Gets the file name for the given MultipartFile.
+     * Gets the file name for the given StorageAwareMultipartFile.
      *
-     * @param file The MultipartFile to get the name for.
+     * @param file The StorageAwareMultipartFile to get the name for.
      * @return The new file name.
      * @throws IOException if an error occurs during file name setting.
      */
-    String getFileName(MultipartFile file) throws IOException;
+    String getFileName(StorageAwareMultipartFile file) throws IOException;
 
     /**
      * Gets the URI prefix for the file storage.

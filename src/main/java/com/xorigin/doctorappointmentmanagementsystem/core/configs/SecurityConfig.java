@@ -32,7 +32,7 @@ public class SecurityConfig {
                                 "api/v1/auth/**",
                                 "*/users/**"
                                 ,"/users/**"
-                                ,"uploads/**"
+                                ,"/uploads/**"
                                 ,"/media/**"
                         ).permitAll()
 //                        .anyRequest().authenticated()

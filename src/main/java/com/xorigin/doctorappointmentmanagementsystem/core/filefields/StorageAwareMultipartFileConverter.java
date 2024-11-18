@@ -17,7 +17,7 @@ public class StorageAwareMultipartFileConverter implements AttributeConverter<St
     @Override
     public String convertToDatabaseColumn(StorageAwareMultipartFile storageAwareMultipartFile) {
         try {
-            return flexStorageAdapter.storeFile(storageAwareMultipartFile, "uploads/");
+            return flexStorageAdapter.storeFile(storageAwareMultipartFile, "");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -2,7 +2,6 @@ package com.xorigin.doctorappointmentmanagementsystem.core.filefields;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -15,16 +14,36 @@ import java.util.Objects;
 @Service
 public class FileSystemStorage implements FlexStorageAdapter {
 
-    private final String baseDir;
     private final String urlPrefix;
+    private final String baseDir;
 
     public FileSystemStorage(
-            @Value("${flexstorage.base-dir:}") final String baseDir,
-            @Value("${flexstorage.url-prefix:}") final String urlPrefix
+            @Value("${flexstorage.url-prefix:media/}") final String urlPrefix,
+            @Value("${flexstorage.base-dir:media/}") final String baseDir
     ) {
-        this.baseDir = baseDir;
-        this.urlPrefix = urlPrefix;
-        System.out.println(baseDir + urlPrefix);
+        this.urlPrefix = cleanUrlPrefix(urlPrefix);
+        this.baseDir = cleanBaseDir(baseDir);
+
+        try {
+            Files.createDirectories(Paths.get(baseDir));
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String cleanUrlPrefix(String urlPrefix) {
+        if (urlPrefix.endsWith("/"))
+            urlPrefix = urlPrefix.substring(0, urlPrefix.length() - 1);
+        return urlPrefix.replaceFirst("/", "");
+    }
+
+    private String cleanBaseDir(String baseDir) {
+        if (baseDir.endsWith("/") || baseDir.endsWith("\\"))
+            baseDir = baseDir.substring(0, baseDir.length() - 1);
+        baseDir = baseDir.replaceFirst("/", "");
+        baseDir = baseDir.replaceFirst("\\\\", "");
+        return baseDir;
     }
 
     @Override
@@ -32,24 +51,23 @@ public class FileSystemStorage implements FlexStorageAdapter {
         if (file == null)
             return null;
 
-        if (file.getUrl() != null)
-            return file.getUrl();
+        if (file.getFilePath() != null)
+            return file.getFilePath();
 
         if (file.getDelegate() == null)
             return null;
-
 
         Path storagePath = Paths.get(baseDir, path);
         Files.createDirectories(storagePath);
 
         Path filePath = storagePath.resolve(getFileName(file));
         Files.write(filePath, file.getBytes());
-//        Path relativePath = filePath.relativize(Paths.get(baseDir));
-//        System.out.println(relativePath.toAbsolutePath());
-//        System.out.println(relativePath.toString());
+
+        filePath = Paths.get(baseDir).relativize(filePath);
+
         file.setUri(getUriPrefix());
         file.setFilePath(filePath.toString());
-        return filePath.toString();
+        return file.getFilePath();
     }
 
     @Override
@@ -63,6 +81,7 @@ public class FileSystemStorage implements FlexStorageAdapter {
             throw new IOException("File not found: " + identifier);
         }
 
+        filePath = Paths.get(baseDir).relativize(filePath);
         return new StorageAwareMultipartFile(getUriPrefix(), filePath.toString());
     }
 
@@ -78,21 +97,18 @@ public class FileSystemStorage implements FlexStorageAdapter {
                 .fromCurrentContextPath()
                 .replacePath(null)
                 .build()
-                .toUriString();
+                .toUriString() + "/" + urlPrefix;
     }
 
     @Override
-    public String getFileName(MultipartFile file) throws IOException {
+    public String getFileName(StorageAwareMultipartFile file) throws IOException {
         return System.currentTimeMillis() + "-" + Objects.requireNonNull(file.getOriginalFilename());
     }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        String urlPrefix = "/" + this.urlPrefix + "/**";
-        String baseDir = "file:/" + this.baseDir + "/";
-        System.out.println(urlPrefix + " " + baseDir);
-        registry.addResourceHandler(urlPrefix)
-                .addResourceLocations("file:uploads/");
+        registry.addResourceHandler(urlPrefix + "/**")
+                .addResourceLocations(Paths.get(baseDir).toUri().toString());
     }
 
 }
