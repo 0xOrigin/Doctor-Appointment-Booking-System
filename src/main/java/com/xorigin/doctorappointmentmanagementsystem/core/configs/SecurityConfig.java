@@ -29,8 +29,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests((request) -> request
                         .requestMatchers(
                                 "/monitoring",
-                                "api/v1/auth/**"
+                                "api/v1/auth/**",
+                                "*/users/**"
                                 ,"/users/**"
+                                ,"uploads/**"
+                                ,"/media/**"
                         ).permitAll()
 //                        .anyRequest().authenticated()
                 )
