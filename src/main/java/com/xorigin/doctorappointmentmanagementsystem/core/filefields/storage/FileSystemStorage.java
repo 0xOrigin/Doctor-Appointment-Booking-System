@@ -1,5 +1,6 @@
-package com.xorigin.doctorappointmentmanagementsystem.core.filefields;
+package com.xorigin.doctorappointmentmanagementsystem.core.filefields.storage;
 
+import com.xorigin.doctorappointmentmanagementsystem.core.filefields.StorageAwareMultipartFile;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -47,7 +48,7 @@ public class FileSystemStorage implements FlexStorageAdapter {
     }
 
     @Override
-    public String storeFile(StorageAwareMultipartFile file, String path) throws IOException {
+    public String storeFile(StorageAwareMultipartFile file) throws IOException {
         if (file == null)
             return null;
 
@@ -57,7 +58,7 @@ public class FileSystemStorage implements FlexStorageAdapter {
         if (file.getDelegate() == null)
             return null;
 
-        Path storagePath = Paths.get(baseDir, path);
+        Path storagePath = Paths.get(baseDir, file.getCustomLocation());
         Files.createDirectories(storagePath);
 
         Path filePath = storagePath.resolve(getFileName(file));
@@ -71,18 +72,12 @@ public class FileSystemStorage implements FlexStorageAdapter {
     }
 
     @Override
-    public StorageAwareMultipartFile loadFileAsStorageAwareMultipartFile(String identifier) throws IOException {
+    public StorageAwareMultipartFile loadFileAsStorageAwareMultipartFile(String identifier) {
         if (identifier == null || identifier.isEmpty())
             return null;
 
-        Path filePath = Paths.get(baseDir, identifier);
-
-        if (!Files.exists(filePath)) {
-            throw new IOException("File not found: " + identifier);
-        }
-
-        filePath = Paths.get(baseDir).relativize(filePath);
-        return new StorageAwareMultipartFile(getUriPrefix(), filePath.toString());
+        Path filePath = Paths.get(identifier);
+        return new StorageAwareMultipartFile(getUriPrefix(), filePath);
     }
 
     @Override
@@ -101,7 +96,7 @@ public class FileSystemStorage implements FlexStorageAdapter {
     }
 
     @Override
-    public String getFileName(StorageAwareMultipartFile file) throws IOException {
+    public String getFileName(StorageAwareMultipartFile file) {
         return System.currentTimeMillis() + "-" + Objects.requireNonNull(file.getOriginalFilename());
     }
 

@@ -1,6 +1,8 @@
 package com.xorigin.doctorappointmentmanagementsystem.users;
 
 import com.xorigin.doctorappointmentmanagementsystem.core.filefields.StorageAwareMultipartFile;
+import com.xorigin.doctorappointmentmanagementsystem.core.filefields.validation.ValidFile;
+import com.xorigin.doctorappointmentmanagementsystem.core.filefields.validation.ValidImage;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,6 +28,7 @@ public class UserDTO {
     private Instant createdAt;
     private User createdBy;
 
+    @ValidImage
     private StorageAwareMultipartFile picture;
 
 }

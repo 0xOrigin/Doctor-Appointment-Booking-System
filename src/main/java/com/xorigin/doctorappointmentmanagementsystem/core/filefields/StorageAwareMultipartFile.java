@@ -7,29 +7,48 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.file.Path;
 
 public class StorageAwareMultipartFile implements MultipartFile, Serializable {
 
-    private transient final MultipartFile delegate;
+    private final transient MultipartFile delegate;
     private String uri;
     private String filePath;
+    private String customLocation = "";
 
     public StorageAwareMultipartFile(MultipartFile file) {
         this.delegate = file;
-        this.uri = null;
-        this.filePath = null;
     }
 
-    public StorageAwareMultipartFile(String filePath) {
+    public StorageAwareMultipartFile(String uri, Path relativeFilePath) {
         this.delegate = null;
-        this.uri = null;
-        this.filePath = filePath;
+        this.uri = uri;
+        this.customLocation = handleCustomLocationConstructorSetting(relativeFilePath);
+        this.filePath = handleFilePathConstructorSetting(relativeFilePath);
     }
 
     public StorageAwareMultipartFile(String uri, String filePath) {
         this.delegate = null;
         this.uri = uri;
         this.filePath = filePath;
+    }
+
+    public StorageAwareMultipartFile(String uri, String customLocation, String filePath) {
+        this.delegate = null;
+        this.uri = uri;
+        this.customLocation = customLocation;
+        this.filePath = filePath;
+    }
+
+    private String handleCustomLocationConstructorSetting(Path relativeFilePath) {
+        if (relativeFilePath.getParent() == null)
+            return "";
+
+        return relativeFilePath.getParent().toString().replace("\\", "/");
+    }
+
+    private String handleFilePathConstructorSetting(Path relativeFilePath) {
+        return relativeFilePath.toString().replace("\\", "/");
     }
 
     @Override
@@ -86,6 +105,15 @@ public class StorageAwareMultipartFile implements MultipartFile, Serializable {
 
     public String getFilePath() {
         return filePath;
+    }
+
+    public String getCustomLocation() {
+        return customLocation;
+    }
+
+    public void setCustomLocation(String customLocation) {
+        this.customLocation = customLocation;
+        this.customLocation = this.customLocation != null ? this.customLocation.replace("\\", "/") : null;
     }
 
     @JsonValue

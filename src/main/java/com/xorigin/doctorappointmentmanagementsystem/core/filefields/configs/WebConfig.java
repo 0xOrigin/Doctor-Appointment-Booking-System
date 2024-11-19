@@ -1,5 +1,7 @@
-package com.xorigin.doctorappointmentmanagementsystem.core.filefields;
+package com.xorigin.doctorappointmentmanagementsystem.core.filefields.configs;
 
+import com.xorigin.doctorappointmentmanagementsystem.core.filefields.storage.FlexStorageAdapter;
+import com.xorigin.doctorappointmentmanagementsystem.core.filefields.converters.StandardMultipartFileToStorageAwareMultipartFileConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;

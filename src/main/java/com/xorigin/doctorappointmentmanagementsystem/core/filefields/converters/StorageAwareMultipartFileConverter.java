@@ -1,5 +1,7 @@
-package com.xorigin.doctorappointmentmanagementsystem.core.filefields;
+package com.xorigin.doctorappointmentmanagementsystem.core.filefields.converters;
 
+import com.xorigin.doctorappointmentmanagementsystem.core.filefields.storage.FlexStorageAdapter;
+import com.xorigin.doctorappointmentmanagementsystem.core.filefields.StorageAwareMultipartFile;
 import jakarta.persistence.Converter;
 import jakarta.persistence.AttributeConverter;
 
@@ -17,7 +19,7 @@ public class StorageAwareMultipartFileConverter implements AttributeConverter<St
     @Override
     public String convertToDatabaseColumn(StorageAwareMultipartFile storageAwareMultipartFile) {
         try {
-            return flexStorageAdapter.storeFile(storageAwareMultipartFile, "");
+            return flexStorageAdapter.storeFile(storageAwareMultipartFile);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -25,11 +27,7 @@ public class StorageAwareMultipartFileConverter implements AttributeConverter<St
 
     @Override
     public StorageAwareMultipartFile convertToEntityAttribute(String identifier) {
-        try {
-            return flexStorageAdapter.loadFileAsStorageAwareMultipartFile(identifier);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return flexStorageAdapter.loadFileAsStorageAwareMultipartFile(identifier);
     }
 
 }

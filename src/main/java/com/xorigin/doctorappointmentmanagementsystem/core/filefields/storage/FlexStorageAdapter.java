@@ -1,5 +1,6 @@
-package com.xorigin.doctorappointmentmanagementsystem.core.filefields;
+package com.xorigin.doctorappointmentmanagementsystem.core.filefields.storage;
 
+import com.xorigin.doctorappointmentmanagementsystem.core.filefields.StorageAwareMultipartFile;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 
 import java.io.IOException;
@@ -10,20 +11,18 @@ public interface FlexStorageAdapter {
      * Stores the given StorageAwareMultipartFile and returns the path or identifier where the file is stored.
      *
      * @param file The file to store.
-     * @param path The relative path or folder where the file should be stored.
      * @return The path or identifier of the stored file.
      * @throws IOException if an error occurs during file storage.
      */
-    String storeFile(StorageAwareMultipartFile file, String path) throws IOException;
+    String storeFile(StorageAwareMultipartFile file) throws IOException;
 
     /**
      * Retrieves the file as a StorageAwareMultipartFile based on the given path or identifier.
      *
      * @param identifier The path or identifier of the stored file.
      * @return The file as a StorageAwareMultipartFile.
-     * @throws IOException if the file cannot be found or read.
      */
-    StorageAwareMultipartFile loadFileAsStorageAwareMultipartFile(String identifier) throws IOException;
+    StorageAwareMultipartFile loadFileAsStorageAwareMultipartFile(String identifier);
 
     /**
      * Deletes the file based on the given path or identifier.
@@ -39,9 +38,8 @@ public interface FlexStorageAdapter {
      *
      * @param file The StorageAwareMultipartFile to get the name for.
      * @return The new file name.
-     * @throws IOException if an error occurs during file name setting.
      */
-    String getFileName(StorageAwareMultipartFile file) throws IOException;
+    String getFileName(StorageAwareMultipartFile file);
 
     /**
      * Gets the URI prefix for the file storage.

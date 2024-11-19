@@ -2,7 +2,7 @@ package com.xorigin.doctorappointmentmanagementsystem.users;
 
 
 import com.xorigin.doctorappointmentmanagementsystem.core.entities.BaseAuditEntity;
-import com.xorigin.doctorappointmentmanagementsystem.core.filefields.IFileField;
+import com.xorigin.doctorappointmentmanagementsystem.core.filefields.annotations.UploadLocation;
 import com.xorigin.doctorappointmentmanagementsystem.core.filefields.StorageAwareMultipartFile;
 import jakarta.persistence.*;
 import lombok.*;
@@ -49,7 +49,7 @@ public class User extends BaseAuditEntity implements UserDetails {
 
     private LocalTime enTime;
 
-    @IFileField(path = "uploads/")
+    @UploadLocation("users/pictures")
     private StorageAwareMultipartFile picture;
 
     @Override
