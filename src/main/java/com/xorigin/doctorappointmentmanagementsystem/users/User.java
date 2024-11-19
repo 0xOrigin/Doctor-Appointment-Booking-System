@@ -2,6 +2,7 @@ package com.xorigin.doctorappointmentmanagementsystem.users;
 
 
 import com.xorigin.doctorappointmentmanagementsystem.core.entities.BaseAuditEntity;
+import com.xorigin.doctorappointmentmanagementsystem.core.filefields.listeners.FileDeletionListener;
 import com.xorigin.doctorappointmentmanagementsystem.core.filefields.annotations.UploadLocation;
 import com.xorigin.doctorappointmentmanagementsystem.core.filefields.StorageAwareMultipartFile;
 import jakarta.persistence.*;
@@ -27,6 +28,7 @@ import java.util.List;
         name = "createdBy",
         joinColumns = @JoinColumn(name = "created_by", nullable = true, updatable = false)
 )
+@EntityListeners(FileDeletionListener.class)
 public class User extends BaseAuditEntity implements UserDetails {
 
     private String firstName;
