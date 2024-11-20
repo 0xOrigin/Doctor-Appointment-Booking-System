@@ -1,15 +1,14 @@
 package com.xorigin.doctorappointmentmanagementsystem.core.generics.controllers.base;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.server.MethodNotAllowedException;
 
 @Service
 public class CrudControllerUtils implements ControllerUtils {
 
     public void methodNotAllowed(String method) {
-        throw new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED, method + " Method not allowed");
+        throw new MethodNotAllowedException(method, null);
     }
 
     public int getPageNumber(Pageable pageable) {

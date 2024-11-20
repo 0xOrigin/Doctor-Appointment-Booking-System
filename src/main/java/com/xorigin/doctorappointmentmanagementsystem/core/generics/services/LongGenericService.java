@@ -4,6 +4,7 @@ import com.xorigin.doctorappointmentmanagementsystem.core.generics.mappers.base.
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.repositories.LongGenericRepository;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.services.base.BaseGenericService;
+import org.springframework.context.MessageSource;
 import org.springframework.data.jpa.domain.Specification;
 
 public abstract class LongGenericService<
@@ -15,8 +16,16 @@ public abstract class LongGenericService<
         PartialUpdateDTO
     > extends BaseGenericService<T, Long, R, M, CreateDTO, UpdateDTO, PartialUpdateDTO> {
 
+    public LongGenericService(UserProvider userProvider, R repository, M mapper, Specification<T> spec, MessageSource messageSource) {
+        super(userProvider, repository, mapper, spec, messageSource);
+    }
+
     public LongGenericService(UserProvider userProvider, R repository, M mapper, Specification<T> spec) {
         super(userProvider, repository, mapper, spec);
+    }
+
+    public LongGenericService(UserProvider userProvider, R repository, M mapper, MessageSource messageSource) {
+        super(userProvider, repository, mapper, messageSource);
     }
 
     public LongGenericService(UserProvider userProvider, R repository, M mapper) {

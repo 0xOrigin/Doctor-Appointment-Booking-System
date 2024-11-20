@@ -4,6 +4,7 @@ import com.xorigin.doctorappointmentmanagementsystem.core.generics.mappers.base.
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.repositories.IntegerGenericRepository;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.services.base.BaseGenericService;
+import org.springframework.context.MessageSource;
 import org.springframework.data.jpa.domain.Specification;
 
 public abstract class IntegerGenericService<
@@ -15,8 +16,16 @@ public abstract class IntegerGenericService<
         PartialUpdateDTO
     > extends BaseGenericService<T, Integer, R, M, CreateDTO, UpdateDTO, PartialUpdateDTO> {
 
+    public IntegerGenericService(UserProvider userProvider, R repository, M mapper, Specification<T> spec, MessageSource messageSource) {
+        super(userProvider, repository, mapper, spec, messageSource);
+    }
+
     public IntegerGenericService(UserProvider userProvider, R repository, M mapper, Specification<T> spec) {
         super(userProvider, repository, mapper, spec);
+    }
+
+    public IntegerGenericService(UserProvider userProvider, R repository, M mapper, MessageSource messageSource) {
+        super(userProvider, repository, mapper, messageSource);
     }
 
     public IntegerGenericService(UserProvider userProvider, R repository, M mapper) {

@@ -1,8 +1,10 @@
 package com.xorigin.doctorappointmentmanagementsystem.core.generics.services.base;
 
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.exceptions.ResourceNotFoundException;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.mappers.base.BaseGenericMapper;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.repositories.base.BaseGenericRepository;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -24,16 +26,26 @@ public abstract class BaseGenericService<
     private final R repository;
     private final M mapper;
     private final Specification<T> spec;
+    private final MessageSource messageSource;
 
-    public BaseGenericService(UserProvider userProvider, R repository, M mapper, Specification<T> spec) {
+    public BaseGenericService(UserProvider userProvider, R repository, M mapper, Specification<T> spec, MessageSource messageSource) {
         this.userProvider = userProvider;
         this.repository = repository;
         this.mapper = mapper;
         this.spec = spec;
+        this.messageSource = messageSource;
+    }
+
+    public BaseGenericService(UserProvider userProvider, R repository, M mapper, Specification<T> spec) {
+        this(userProvider, repository, mapper, spec, null);
+    }
+
+    public BaseGenericService(UserProvider userProvider, R repository, M mapper, MessageSource messageSource) {
+        this(userProvider, repository, mapper, null, messageSource);
     }
 
     public BaseGenericService(UserProvider userProvider, R repository, M mapper) {
-        this(userProvider, repository, mapper, null);
+        this(userProvider, repository, mapper, null, null);
     }
 
     public UserProvider getUserProvider() {
@@ -52,6 +64,10 @@ public abstract class BaseGenericService<
         return spec;
     }
 
+    public MessageSource getMessageSource() {
+        return messageSource;
+    }
+
     protected void preCreate(T instance, CreateDTO dto) {}
 
     protected void preUpdate(T instance, UpdateDTO dto) {}
@@ -63,6 +79,10 @@ public abstract class BaseGenericService<
     protected void postUpdate(T instance, UpdateDTO dto) {}
 
     protected void postPartialUpdate(T instance, PartialUpdateDTO dto) {}
+
+    protected ResourceNotFoundException throwResourceNotFoundException() {
+        return new ResourceNotFoundException("Not found");
+    }
 
     protected List<?> mapInstancesToList(List<T> instances, Function<T, ?> mapper) {
         return instances.stream().map(mapper).toList();
@@ -86,7 +106,7 @@ public abstract class BaseGenericService<
 
     public T findById(ID id) {
         return getRepository().findById(id)
-                .orElseThrow();
+                .orElseThrow(this::throwResourceNotFoundException);
     }
 
     public List<?> getMappedFindAll(List<T> instances) {
