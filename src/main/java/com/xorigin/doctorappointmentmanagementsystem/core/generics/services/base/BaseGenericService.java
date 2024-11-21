@@ -1,15 +1,18 @@
 package com.xorigin.doctorappointmentmanagementsystem.core.generics.services.base;
 
-import com.xorigin.doctorappointmentmanagementsystem.core.generics.exceptions.ResourceNotFoundException;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.mappers.base.BaseGenericMapper;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.repositories.base.BaseGenericRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.function.Function;
 
 public abstract class BaseGenericService<
@@ -60,12 +63,24 @@ public abstract class BaseGenericService<
         return mapper;
     }
 
-    public Specification<T> getSpec() {
-        return spec;
+    public Optional<Specification<T>> getSpec() {
+        return Optional.ofNullable(spec);
     }
 
-    public MessageSource getMessageSource() {
-        return messageSource;
+    public Optional<MessageSource> getMessageSource() {
+        return Optional.ofNullable(messageSource);
+    }
+
+    public Locale getLocale() {
+        return LocaleContextHolder.getLocale();
+    }
+
+    public String getMessage(String identifier) {
+        return getMessageSource().map(ms -> ms.getMessage(identifier, null, getLocale())).orElse(identifier);
+    }
+
+    public String getMessage(String identifier, Object... args) {
+        return getMessageSource().map(ms -> ms.getMessage(identifier, args, getLocale())).orElse(identifier);
     }
 
     protected void preCreate(T instance, CreateDTO dto) {}
@@ -80,8 +95,8 @@ public abstract class BaseGenericService<
 
     protected void postPartialUpdate(T instance, PartialUpdateDTO dto) {}
 
-    protected ResourceNotFoundException throwResourceNotFoundException() {
-        return new ResourceNotFoundException("Not found");
+    protected EntityNotFoundException throwNotFoundException() {
+        return new EntityNotFoundException("Not found");
     }
 
     protected List<?> mapInstancesToList(List<T> instances, Function<T, ?> mapper) {
@@ -93,20 +108,20 @@ public abstract class BaseGenericService<
     }
 
     public Long getCount() {
-        return getRepository().count(getSpec());
+        return getRepository().count(getSpec().orElse(null));
     }
 
     public Page<T> getPage(PageRequest pageRequest) {
-        return getRepository().findAll(getSpec(), pageRequest);
+        return getRepository().findAll(getSpec().orElse(null), pageRequest);
     }
 
     public List<T> findAll() {
-        return getRepository().findAll(getSpec());
+        return getRepository().findAll(getSpec().orElse(null));
     }
 
     public T findById(ID id) {
         return getRepository().findById(id)
-                .orElseThrow(this::throwResourceNotFoundException);
+                .orElseThrow(this::throwNotFoundException);
     }
 
     public List<?> getMappedFindAll(List<T> instances) {

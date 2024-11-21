@@ -1,8 +1,8 @@
 package com.xorigin.doctorappointmentmanagementsystem.core.generics.exceptions.configs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.xorigin.doctorappointmentmanagementsystem.core.responses.ApiErrorResponse;
-import com.xorigin.doctorappointmentmanagementsystem.core.responses.StandardApiErrorResponse;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.ApiErrorResponse;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.StandardApiErrorResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

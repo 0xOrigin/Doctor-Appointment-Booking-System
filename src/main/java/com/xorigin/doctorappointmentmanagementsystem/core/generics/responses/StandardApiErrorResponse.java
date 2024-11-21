@@ -1,4 +1,4 @@
-package com.xorigin.doctorappointmentmanagementsystem.core.responses;
+package com.xorigin.doctorappointmentmanagementsystem.core.generics.responses;
 
 import java.time.OffsetDateTime;
 import java.util.List;

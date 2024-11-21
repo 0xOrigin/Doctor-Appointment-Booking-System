@@ -4,10 +4,10 @@ import com.xorigin.doctorappointmentmanagementsystem.core.generics.mappers.base.
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.repositories.base.BaseGenericRepository;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.services.base.BaseGenericService;
-import com.xorigin.doctorappointmentmanagementsystem.core.responses.ApiResponse;
-import com.xorigin.doctorappointmentmanagementsystem.core.responses.BaseMetaResponse;
-import com.xorigin.doctorappointmentmanagementsystem.core.responses.BasePaginationResponse;
-import com.xorigin.doctorappointmentmanagementsystem.core.responses.StandardApiResponse;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.ApiResponse;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.BaseMetaResponse;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.BasePaginationResponse;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.StandardApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -198,6 +198,7 @@ public abstract class GenericCrudController<
         return ResponseEntity.noContent().build();
     }
 
+    @SuppressWarnings("unchecked")
     protected <N> ApiResponse<N> getApiResponse(
             String message,
             N data,

@@ -40,6 +40,9 @@ spring:
         sort-parameter: sort
 jwt:
   secret: ${SECRET_KEY}
+core-crud:
+  exceptions:
+    show-stacktrace: true
 #logging:
 #  level:
 #    org.springframework: DEBUG
