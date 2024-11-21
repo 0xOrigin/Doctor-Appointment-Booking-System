@@ -14,7 +14,10 @@ public class FileValidator implements ConstraintValidator<ValidFile, StorageAwar
     @Override
     public void initialize(ValidFile constraintAnnotation) {
         this.maxSize = constraintAnnotation.maxSize();
-        this.allowedExtensions = Arrays.stream(constraintAnnotation.allowedExtensions()).map(String::toLowerCase).toArray(String[]::new);
+        this.allowedExtensions = Arrays
+                .stream(constraintAnnotation.allowedExtensions())
+                .map(String::toLowerCase)
+                .toArray(String[]::new);
     }
 
     @Override

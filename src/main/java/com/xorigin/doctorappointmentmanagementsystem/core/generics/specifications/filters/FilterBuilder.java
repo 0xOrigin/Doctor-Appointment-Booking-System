@@ -17,28 +17,43 @@ public class FilterBuilder<T> implements QueryFilterBuilder<T> {
     private final Map<String, Set<Operator>> fieldOperators = new HashMap<>();
     private final Map<String, CustomFilterWrapper<T>> customFieldFilters = new HashMap<>();
 
-    public FilterBuilder(FilterParser filterParser, PathGenerator<T> filterPathGenerator, FilterValidator filterValidator) {
+    public FilterBuilder(
+            FilterParser filterParser,
+            PathGenerator<T> filterPathGenerator,
+            FilterValidator filterValidator
+    ) {
         this.filterParser = filterParser;
         this.filterPathGenerator = filterPathGenerator;
         this.filterValidator = filterValidator;
     }
 
     @Override
-    public QueryFilterBuilder<T> addFilter(String fieldName, Operator... operators) {
+    public QueryFilterBuilder<T> addFilter(
+            String fieldName,
+            Operator... operators
+    ) {
         filterValidator.validateFilterAddition(fieldName, operators);
         fieldOperators.put(fieldName, new HashSet<>(Arrays.asList(operators)));
         return this;
     }
 
     @Override
-    public QueryFilterBuilder<T> addFilter(String fieldName, Class<? extends Comparable<?>> dataType, CustomFilterFunction<T> filterFunction) {
+    public QueryFilterBuilder<T> addFilter(
+            String fieldName,
+            Class<? extends Comparable<?>> dataType,
+            CustomFilterFunction<T> filterFunction
+    ) {
         filterValidator.validateCustomFilterAddition(fieldName, dataType, filterFunction);
         AbstractFilterField<?> filterField = FilterRegistry.getFieldFilter(dataType);
         customFieldFilters.put(fieldName, new CustomFilterWrapper<T>(filterField, filterFunction));
         return this;
     }
 
-    public Predicate buildFilterPredicate(Root<T> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+    public Predicate buildFilterPredicate(
+            Root<T> root,
+            CriteriaQuery<?> criteriaQuery,
+            CriteriaBuilder cb
+    ) {
         List<Predicate> predicates = filterParser.parse().stream()
                 .map(filterWrapper -> buildPredicateForWrapper(root, criteriaQuery, cb, filterWrapper))
                 .filter(Objects::nonNull)
@@ -47,7 +62,12 @@ public class FilterBuilder<T> implements QueryFilterBuilder<T> {
         return predicates.isEmpty() ? cb.conjunction() : cb.and(predicates.toArray(new Predicate[0]));
     }
 
-    private Predicate buildPredicateForWrapper(Root<T> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb, FilterWrapper filterWrapper) {
+    private Predicate buildPredicateForWrapper(
+            Root<T> root,
+            CriteriaQuery<?> criteriaQuery,
+            CriteriaBuilder cb,
+            FilterWrapper filterWrapper
+    ) {
         Predicate customPredicate = buildCustomFieldPredicate(root, criteriaQuery, cb, filterWrapper);
         if (customPredicate != null)
             return customPredicate;
@@ -58,7 +78,12 @@ public class FilterBuilder<T> implements QueryFilterBuilder<T> {
         return null;
     }
 
-    private Predicate buildCustomFieldPredicate(Root<T> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb, FilterWrapper filterWrapper) {
+    private Predicate buildCustomFieldPredicate(
+            Root<T> root,
+            CriteriaQuery<?> criteriaQuery,
+            CriteriaBuilder cb,
+            FilterWrapper filterWrapper
+    ) {
         CustomFilterWrapper<T> customFilter = customFieldFilters.get(filterWrapper.getOriginalFieldName());
         if (customFilter == null)
             return null;
@@ -74,7 +99,11 @@ public class FilterBuilder<T> implements QueryFilterBuilder<T> {
                 fieldOperators.get(filterWrapper.getField()).contains(filterWrapper.getOperator());
     }
 
-    private Predicate createPredicate(Root<T> root, CriteriaBuilder builder, FilterWrapper filterWrapper) {
+    private Predicate createPredicate(
+            Root<T> root,
+            CriteriaBuilder builder,
+            FilterWrapper filterWrapper
+    ) {
         Path<T> path = getPath(root, filterWrapper.getField());
         Class<? extends Comparable<?>> dataType = getFieldDataType(path);
         AbstractFilterField<?> filterClass = getFieldFilter(dataType);

@@ -14,7 +14,10 @@ public class ImageValidator implements ConstraintValidator<ValidImage, StorageAw
     @Override
     public void initialize(ValidImage constraintAnnotation) {
         this.maxSize = constraintAnnotation.maxSize();
-        this.allowedExtensions = Arrays.stream(constraintAnnotation.allowedExtensions()).map(String::toLowerCase).toArray(String[]::new);
+        this.allowedExtensions = Arrays
+                .stream(constraintAnnotation.allowedExtensions())
+                .map(String::toLowerCase)
+                .toArray(String[]::new);
     }
 
     @Override
