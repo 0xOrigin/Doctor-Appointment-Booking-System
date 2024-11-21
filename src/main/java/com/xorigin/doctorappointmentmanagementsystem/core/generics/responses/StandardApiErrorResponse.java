@@ -11,7 +11,11 @@ public class StandardApiErrorResponse implements ApiErrorResponse {
     private final String path;
     private final Map<String, List<String>> errors;
 
-    public StandardApiErrorResponse(String message, String path, Map<String, List<String>> errors) {
+    public StandardApiErrorResponse(
+            String message,
+            String path,
+            Map<String, List<String>> errors
+    ) {
         this.message = message;
         this.path = path;
         this.errors = errors;

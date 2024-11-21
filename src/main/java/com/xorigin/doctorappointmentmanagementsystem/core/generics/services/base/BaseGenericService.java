@@ -4,14 +4,11 @@ import com.xorigin.doctorappointmentmanagementsystem.core.generics.mappers.base.
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.repositories.base.BaseGenericRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -29,25 +26,45 @@ public abstract class BaseGenericService<
     private final R repository;
     private final M mapper;
     private final Specification<T> spec;
-    private final MessageSource messageSource;
+    private final MessageByLocaleService messageByLocaleService;
 
-    public BaseGenericService(UserProvider userProvider, R repository, M mapper, Specification<T> spec, MessageSource messageSource) {
+    public BaseGenericService(
+            UserProvider userProvider,
+            R repository,
+            M mapper,
+            Specification<T> spec,
+            MessageByLocaleService messageByLocaleService
+    ) {
         this.userProvider = userProvider;
         this.repository = repository;
         this.mapper = mapper;
         this.spec = spec;
-        this.messageSource = messageSource;
+        this.messageByLocaleService = messageByLocaleService;
     }
 
-    public BaseGenericService(UserProvider userProvider, R repository, M mapper, Specification<T> spec) {
+    public BaseGenericService(
+            UserProvider userProvider,
+            R repository,
+            M mapper,
+            Specification<T> spec
+    ) {
         this(userProvider, repository, mapper, spec, null);
     }
 
-    public BaseGenericService(UserProvider userProvider, R repository, M mapper, MessageSource messageSource) {
-        this(userProvider, repository, mapper, null, messageSource);
+    public BaseGenericService(
+            UserProvider userProvider,
+            R repository,
+            M mapper,
+            MessageByLocaleService messageByLocaleService
+    ) {
+        this(userProvider, repository, mapper, null, messageByLocaleService);
     }
 
-    public BaseGenericService(UserProvider userProvider, R repository, M mapper) {
+    public BaseGenericService(
+            UserProvider userProvider,
+            R repository,
+            M mapper
+    ) {
         this(userProvider, repository, mapper, null, null);
     }
 
@@ -67,20 +84,8 @@ public abstract class BaseGenericService<
         return Optional.ofNullable(spec);
     }
 
-    public Optional<MessageSource> getMessageSource() {
-        return Optional.ofNullable(messageSource);
-    }
-
-    public Locale getLocale() {
-        return LocaleContextHolder.getLocale();
-    }
-
-    public String getMessage(String identifier) {
-        return getMessageSource().map(ms -> ms.getMessage(identifier, null, getLocale())).orElse(identifier);
-    }
-
-    public String getMessage(String identifier, Object... args) {
-        return getMessageSource().map(ms -> ms.getMessage(identifier, args, getLocale())).orElse(identifier);
+    public Optional<MessageByLocaleService> getMessageByLocaleService() {
+        return Optional.ofNullable(messageByLocaleService);
     }
 
     protected void preCreate(T instance, CreateDTO dto) {}

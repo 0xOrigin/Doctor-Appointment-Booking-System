@@ -14,7 +14,12 @@ public class StandardApiResponse<M extends BaseMetaResponse, P extends BasePagin
 
     private final D data;
 
-    public StandardApiResponse(String message, M meta, P pagination, D data) {
+    public StandardApiResponse(
+            String message,
+            M meta,
+            P pagination,
+            D data
+    ) {
         this.message = message;
         this.meta = (meta != null && meta.getCount() != null) ? meta : null;
         this.pagination = (pagination != null && pagination.getLast() != null) ? pagination : null;

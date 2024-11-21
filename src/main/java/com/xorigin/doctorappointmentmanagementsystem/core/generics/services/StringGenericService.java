@@ -4,7 +4,7 @@ import com.xorigin.doctorappointmentmanagementsystem.core.generics.mappers.base.
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.repositories.StringGenericRepository;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.services.base.BaseGenericService;
-import org.springframework.context.MessageSource;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.services.base.MessageByLocaleService;
 import org.springframework.data.jpa.domain.Specification;
 
 public abstract class StringGenericService<
@@ -16,19 +16,39 @@ public abstract class StringGenericService<
         PartialUpdateDTO
     > extends BaseGenericService<T, String, R, M, CreateDTO, UpdateDTO, PartialUpdateDTO> {
 
-    public StringGenericService(UserProvider userProvider, R repository, M mapper, Specification<T> spec, MessageSource messageSource) {
-        super(userProvider, repository, mapper, spec, messageSource);
+    public StringGenericService(
+            UserProvider userProvider,
+            R repository,
+            M mapper,
+            Specification<T> spec,
+            MessageByLocaleService messageByLocaleService
+    ) {
+        super(userProvider, repository, mapper, spec, messageByLocaleService);
     }
 
-    public StringGenericService(UserProvider userProvider, R repository, M mapper, Specification<T> spec) {
+    public StringGenericService(
+            UserProvider userProvider,
+            R repository,
+            M mapper,
+            Specification<T> spec
+    ) {
         super(userProvider, repository, mapper, spec);
     }
 
-    public StringGenericService(UserProvider userProvider, R repository, M mapper, MessageSource messageSource) {
-        super(userProvider, repository, mapper, messageSource);
+    public StringGenericService(
+            UserProvider userProvider,
+            R repository,
+            M mapper,
+            MessageByLocaleService messageByLocaleService
+    ) {
+        super(userProvider, repository, mapper, messageByLocaleService);
     }
 
-    public StringGenericService(UserProvider userProvider, R repository, M mapper) {
+    public StringGenericService(
+            UserProvider userProvider,
+            R repository,
+            M mapper
+    ) {
         super(userProvider, repository, mapper);
     }
 

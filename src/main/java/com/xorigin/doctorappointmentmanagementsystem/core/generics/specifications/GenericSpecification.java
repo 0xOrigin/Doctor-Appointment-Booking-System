@@ -17,7 +17,11 @@ public abstract class GenericSpecification<T> extends QueryFilterBuilderSpecific
     private final HttpServletRequest request;
     private final UserProvider userProvider;
 
-    public GenericSpecification(HttpServletRequest request, UserProvider userProvider, QueryFilterBuilder<T> filterBuilder) {
+    public GenericSpecification(
+            HttpServletRequest request,
+            UserProvider userProvider,
+            QueryFilterBuilder<T> filterBuilder
+    ) {
         super(filterBuilder);
         this.request = request;
         this.userProvider = userProvider;

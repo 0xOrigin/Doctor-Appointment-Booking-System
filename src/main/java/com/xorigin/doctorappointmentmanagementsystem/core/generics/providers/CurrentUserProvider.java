@@ -12,6 +12,7 @@ import java.util.Optional;
 public class CurrentUserProvider implements UserProvider {
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends UserDetails> Optional<T> getCurrentUser() {
         return (Optional<T>) Optional.ofNullable(SecurityContextHolder.getContext())
                 .map(SecurityContext::getAuthentication)
