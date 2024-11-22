@@ -71,7 +71,7 @@ public abstract class GenericCrudController<
     }
 
     public PageRequest getPageRequest(Pageable pageable) {
-        return PageRequest.of(getUtils().getPageNumber(pageable), getUtils().getPageSize(pageable, getOptions()));
+        return PageRequest.of(getUtils().getPageNumber(pageable), getUtils().getPageSize(pageable, getOptions()), pageable.getSort());
     }
 
     protected T performCreate(CreateDTO dto) {
@@ -101,7 +101,7 @@ public abstract class GenericCrudController<
 
         if (!getOptions().isPaginationEnabled()) {
             Long count = getService().getCount();
-            List<T> instances = getService().findAll();
+            List<T> instances = getService().findAll(pageable.getSort());
             List<?> mappedInstances = getService().getMappedFindAll(instances);
             ApiResponse<?> apiResponse = getApiResponse("Success", mappedInstances, count, null);
             return ResponseEntity.ok().body(apiResponse);

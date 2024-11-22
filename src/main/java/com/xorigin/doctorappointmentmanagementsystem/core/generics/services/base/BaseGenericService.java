@@ -6,6 +6,7 @@ import com.xorigin.doctorappointmentmanagementsystem.core.generics.repositories.
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
@@ -120,8 +121,8 @@ public abstract class BaseGenericService<
         return getRepository().findAll(getSpec().orElse(null), pageRequest);
     }
 
-    public List<T> findAll() {
-        return getRepository().findAll(getSpec().orElse(null));
+    public List<T> findAll(Sort sort) {
+        return getRepository().findAll(getSpec().orElse(null), sort);
     }
 
     public T findById(ID id) {

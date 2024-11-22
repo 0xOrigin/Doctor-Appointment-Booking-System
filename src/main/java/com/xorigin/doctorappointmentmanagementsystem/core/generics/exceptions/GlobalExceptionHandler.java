@@ -6,6 +6,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -82,6 +83,16 @@ public class GlobalExceptionHandler {
                 new HashMap<>()
         );
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(errorResponse);
+    }
+
+    @ExceptionHandler(PropertyReferenceException.class)
+    public ResponseEntity<?> handleException(@NotNull PropertyReferenceException e, WebRequest request, Locale locale) {
+        ApiErrorResponse errorResponse = new StandardApiErrorResponse(
+                e.getLocalizedMessage(),
+                getRequestPath(request),
+                new HashMap<>()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
     @ExceptionHandler(Exception.class)
