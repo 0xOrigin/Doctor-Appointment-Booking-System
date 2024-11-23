@@ -4,6 +4,7 @@ import com.xorigin.doctorappointmentmanagementsystem.core.generics.controllers.U
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.controllers.base.ControllerOptions;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.controllers.base.ControllerUtils;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.ResponseFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,10 +16,11 @@ public class UserController extends UuidSingleDtoGenericCrudController<User, Use
     public UserController(
             @Qualifier("defaultPaginatedOptions") ControllerOptions options,
             ControllerUtils utils,
+            ResponseFactory responseFactory,
             UserProvider userProvider,
             UserService service
     ) {
-        super(options, utils, userProvider, service);
+        super(options, utils, responseFactory, userProvider, service);
         getOptions().setPageSize(5);
     }
 

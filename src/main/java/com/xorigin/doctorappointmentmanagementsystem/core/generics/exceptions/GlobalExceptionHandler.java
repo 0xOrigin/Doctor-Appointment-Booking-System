@@ -6,9 +6,11 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -65,6 +67,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<?> handleException(@NotNull DataIntegrityViolationException e, WebRequest request, Locale locale) {
+        ApiErrorResponse errorResponse = new StandardApiErrorResponse(
+                e.getLocalizedMessage(),
+                getRequestPath(request),
+                new HashMap<>()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<?> handleException(@NotNull NoResourceFoundException e, WebRequest request, Locale locale) {
         ApiErrorResponse errorResponse = new StandardApiErrorResponse(
@@ -93,6 +105,16 @@ public class GlobalExceptionHandler {
                 new HashMap<>()
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<?> handleException(@NotNull BadCredentialsException e, WebRequest request, Locale locale) {
+        ApiErrorResponse errorResponse = new StandardApiErrorResponse(
+                e.getLocalizedMessage(),
+                getRequestPath(request),
+                new HashMap<>()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
 
     @ExceptionHandler(Exception.class)

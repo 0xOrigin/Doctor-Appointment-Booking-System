@@ -101,4 +101,18 @@ public class ControllerOptionsConfig {
                 .build();
     }
 
+    @Bean
+    public ControllerOptions nothingAllowedOptions() {
+        return CrudControllerOptions
+                .builder()
+                .isPaginationEnabled(false)
+                .isFindAllAllowed(false)
+                .isFindOneAllowed(false)
+                .isCreateAllowed(false)
+                .isUpdateAllowed(false)
+                .isPartialUpdateAllowed(false)
+                .isDeleteAllowed(false)
+                .build();
+    }
+
 }

@@ -1,29 +1,24 @@
-package com.xorigin.doctorappointmentmanagementsystem.users;
+package com.xorigin.doctorappointmentmanagementsystem.auth;
 
 import com.xorigin.doctorappointmentmanagementsystem.core.filefields.StorageAwareMultipartFile;
-import com.xorigin.doctorappointmentmanagementsystem.core.filefields.validation.ValidImage;
-import jakarta.validation.constraints.NotNull;
+import com.xorigin.doctorappointmentmanagementsystem.users.Role;
+import com.xorigin.doctorappointmentmanagementsystem.users.User;
 import lombok.Data;
 
 import java.time.Instant;
-import java.util.Optional;
 import java.util.UUID;
 
 @Data
-public class UserDTO {
+public class UserAuthResponseDTO {
 
     private UUID id;
-    private Optional<String> firstName;
-    @NotNull
+    private String firstName;
     private String lastName;
-    private Optional<String> email;
-    private String password;
+    private String email;
     private Role role;
     private Boolean isActive;
     private Instant createdAt;
     private User createdBy;
-
-    @ValidImage
     private StorageAwareMultipartFile picture;
 
 }

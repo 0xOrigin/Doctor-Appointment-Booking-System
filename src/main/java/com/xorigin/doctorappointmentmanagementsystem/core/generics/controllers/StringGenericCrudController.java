@@ -6,6 +6,7 @@ import com.xorigin.doctorappointmentmanagementsystem.core.generics.controllers.b
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.mappers.base.BaseGenericMapper;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.repositories.StringGenericRepository;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.ResponseFactory;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.services.StringGenericService;
 
 public abstract class StringGenericCrudController<
@@ -26,10 +27,11 @@ public abstract class StringGenericCrudController<
     public StringGenericCrudController(
             ControllerOptions options,
             ControllerUtils utils,
+            ResponseFactory responseFactory,
             UserProvider userProvider,
             S service
     ) {
-        super(options, utils, userProvider, service);
+        super(options, utils, responseFactory, userProvider, service);
     }
 
 }

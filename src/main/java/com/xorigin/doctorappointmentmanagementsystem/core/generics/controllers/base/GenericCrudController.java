@@ -3,11 +3,8 @@ package com.xorigin.doctorappointmentmanagementsystem.core.generics.controllers.
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.mappers.base.BaseGenericMapper;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.repositories.base.BaseGenericRepository;
+import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.*;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.services.base.BaseGenericService;
-import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.ApiResponse;
-import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.BaseMetaResponse;
-import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.BasePaginationResponse;
-import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.StandardApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -39,17 +36,20 @@ public abstract class GenericCrudController<
 
     private final ControllerOptions options;
     private final ControllerUtils utils;
+    private final ResponseFactory responseFactory;
     private final UserProvider userProvider;
     private final S service;
 
     public GenericCrudController(
             ControllerOptions options,
             ControllerUtils utils,
+            ResponseFactory responseFactory,
             UserProvider userProvider,
             S service
     ) {
         this.options = options;
         this.utils = utils;
+        this.responseFactory = responseFactory;
         this.userProvider = userProvider;
         this.service = service;
     }
@@ -60,6 +60,10 @@ public abstract class GenericCrudController<
 
     public ControllerUtils getUtils() {
         return utils;
+    }
+
+    public ResponseFactory getResponseFactory() {
+        return responseFactory;
     }
 
     public UserProvider getUserProvider() {
@@ -103,12 +107,12 @@ public abstract class GenericCrudController<
             Long count = getService().getCount();
             List<T> instances = getService().findAll(pageable.getSort());
             List<?> mappedInstances = getService().getMappedFindAll(instances);
-            ApiResponse<?> apiResponse = getApiResponse("Success", mappedInstances, count, null);
+            ApiResponse<?> apiResponse = getResponseFactory().createResponse("Success", mappedInstances, count, null);
             return ResponseEntity.ok().body(apiResponse);
         }
 
         Page<T> page = getService().getPage(getPageRequest(pageable));
-        ApiResponse<?> apiResponse = getApiResponse(
+        ApiResponse<?> apiResponse = getResponseFactory().createResponse(
                 "Success",
                 getService().getMappedFindAll(page),
                 page.getTotalElements(),
@@ -124,7 +128,7 @@ public abstract class GenericCrudController<
         }
 
         T instance = getService().findById(id);
-        ApiResponse<?> apiResponse = getApiResponse("Success", getService().getMappedFindOne(instance), null, null);
+        ApiResponse<?> apiResponse = getResponseFactory().createResponse("Success", getService().getMappedFindOne(instance));
         return ResponseEntity.ok().body(apiResponse);
     }
 
@@ -134,7 +138,7 @@ public abstract class GenericCrudController<
         }
 
         T instance = performCreate(dto);
-        ApiResponse<?> apiResponse = getApiResponse("Success", getService().getMappedFindOne(instance), null, null);
+        ApiResponse<?> apiResponse = getResponseFactory().createResponse("Success", getService().getMappedFindOne(instance));
         return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
     }
 
@@ -154,7 +158,7 @@ public abstract class GenericCrudController<
         }
 
         T instance = performUpdate(id, dto);
-        ApiResponse<?> apiResponse = getApiResponse("Success", getService().getMappedFindOne(instance), null, null);
+        ApiResponse<?> apiResponse = getResponseFactory().createResponse("Success", getService().getMappedFindOne(instance));
         return ResponseEntity.ok().body(apiResponse);
     }
 
@@ -174,7 +178,7 @@ public abstract class GenericCrudController<
         }
 
         T instance = performPartialUpdate(id, dto);
-        ApiResponse<?> apiResponse = getApiResponse("Success", getService().getMappedFindOne(instance), null, null);
+        ApiResponse<?> apiResponse = getResponseFactory().createResponse("Success", getService().getMappedFindOne(instance));
         return ResponseEntity.ok().body(apiResponse);
     }
 
@@ -196,22 +200,6 @@ public abstract class GenericCrudController<
 
         performDelete(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @SuppressWarnings("unchecked")
-    protected <N> ApiResponse<N> getApiResponse(
-            String message,
-            N data,
-            Long count,
-            Page<T> page
-    ) {
-        return (ApiResponse<N>) StandardApiResponse
-                .builder()
-                .message(message)
-                .meta(BaseMetaResponse.builder().count(count).build())
-                .pagination(BasePaginationResponse.builder().page(page).build())
-                .data(data)
-                .build();
     }
 
 }

@@ -105,11 +105,11 @@ public abstract class BaseGenericService<
         return new EntityNotFoundException("Not found");
     }
 
-    protected List<?> mapInstancesToList(List<T> instances, Function<T, ?> mapper) {
+    public List<?> mapInstancesToList(List<T> instances, Function<T, ?> mapper) {
         return instances.stream().map(mapper).toList();
     }
 
-    protected Object mapInstanceToDto(T instance, Function<T, ?> mapper) {
+    public Object mapInstanceToDto(T instance, Function<T, ?> mapper) {
         return mapper.apply(instance);
     }
 
