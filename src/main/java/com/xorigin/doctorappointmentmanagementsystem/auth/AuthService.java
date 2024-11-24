@@ -4,13 +4,20 @@ import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.Use
 import com.xorigin.doctorappointmentmanagementsystem.core.jwt.JwtService;
 import com.xorigin.doctorappointmentmanagementsystem.users.User;
 import com.xorigin.doctorappointmentmanagementsystem.users.UserRepository;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -19,6 +26,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final UserDetailsService userDetailsService;
     private final UserRepository repository;
     private final UserProvider userProvider;
     private final AuthMapper authMapper;
@@ -29,7 +37,8 @@ public class AuthService {
             PasswordEncoder passwordEncoder,
             JwtService jwtService,
             AuthenticationManager authenticationManager,
-            AuthMapper authMapper
+            AuthMapper authMapper,
+            UserDetailsService userDetailsService
     ) {
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
@@ -37,6 +46,7 @@ public class AuthService {
         this.repository = repository;
         this.userProvider = userProvider;
         this.authMapper = authMapper;
+        this.userDetailsService = userDetailsService;
     }
 
     public UserAuthResponseDTO register(RegisterDTO dto, HttpServletResponse response) {
@@ -70,11 +80,39 @@ public class AuthService {
         User user = authenticate(dto);
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
-        response.addCookie(jwtService.createAccessTokenCookie(accessToken));
-        response.addCookie(jwtService.createRefreshTokenCookie(refreshToken));
+        jwtService.setCookies(response, accessToken, refreshToken);
 //        revokeAllUserTokens(user);
 //        saveUserToken(user, jwtToken);
         return authMapper.toRetrieveDto(user, accessToken, refreshToken);
+    }
+
+    public AuthResponseDTO refresh(String refreshToken, HttpServletRequest request, HttpServletResponse response) {
+        Optional<String> token = Optional.ofNullable(refreshToken).or(() -> jwtService.resolveRefreshToken(request));
+        if (token.isEmpty())
+            throw new BadCredentialsException("Refresh token is missing");
+
+        String userId;
+
+        try {
+            if (!jwtService.isRefreshToken(token.get()))
+                throw new BadCredentialsException("Invalid refresh token");
+
+            userId = jwtService.extractUsername(token.get());
+            if (userId == null)
+                throw new BadCredentialsException("Invalid refresh token");
+        } catch (ExpiredJwtException | MalformedJwtException e) {
+            throw new BadCredentialsException(e.getLocalizedMessage());
+        }
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
+        String accessToken = jwtService.generateAccessToken(userDetails);
+        String newRefreshToken = jwtService.generateRefreshToken(userDetails);
+        jwtService.setCookies(response, accessToken, newRefreshToken);
+        return authMapper.toRetrieveDto(null, accessToken, newRefreshToken);
+    }
+
+    public void logout(HttpServletResponse response) {
+        jwtService.revokeCookies(response);
     }
 
 //    private void saveUserToken(User user, String jwtToken) {

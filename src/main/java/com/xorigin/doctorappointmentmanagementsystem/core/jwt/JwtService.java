@@ -7,6 +7,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -78,6 +79,9 @@ public class JwtService {
     }
 
     public Optional<String> resolveTokenFromCookie(HttpServletRequest request, String cookieName) {
+        if (request.getCookies() == null)
+            return Optional.empty();
+
         Cookie cookie = Arrays.stream(request.getCookies())
                 .filter(c -> c.getName().equals(cookieName))
                 .findFirst()
@@ -145,7 +149,7 @@ public class JwtService {
         return extractTokenType(token) == TokenType.REFRESH;
     }
 
-    public Cookie createAccessTokenCookie(String accessToken) {
+    public Cookie createAccessTokenCookie(String accessToken, int accessTokenExpiration) {
         Cookie accessTokenCookie = new Cookie(accessTokenCookieName, accessToken);
         accessTokenCookie.setHttpOnly(cookiesHttpOnly);
         accessTokenCookie.setSecure(cookiesSecure);
@@ -155,7 +159,11 @@ public class JwtService {
         return accessTokenCookie;
     }
 
-    public Cookie createRefreshTokenCookie(String refreshToken) {
+    public Cookie createAccessTokenCookie(String accessToken) {
+        return createAccessTokenCookie(accessToken, accessTokenExpiration);
+    }
+
+    public Cookie createRefreshTokenCookie(String refreshToken, int refreshTokenExpiration) {
         Cookie refreshTokenCookie = new Cookie(refreshTokenCookieName, refreshToken);
         refreshTokenCookie.setHttpOnly(cookiesHttpOnly);
         refreshTokenCookie.setSecure(cookiesSecure);
@@ -163,6 +171,23 @@ public class JwtService {
         refreshTokenCookie.setPath(refreshTokenCookiePath);
         refreshTokenCookie.setAttribute("SameSite", cookiesSameSite);
         return refreshTokenCookie;
+    }
+
+    public Cookie createRefreshTokenCookie(String refreshToken) {
+        return createRefreshTokenCookie(refreshToken, refreshTokenExpiration);
+    }
+
+    public void setCookies(HttpServletResponse response, String accessToken, String refreshToken) {
+        response.addCookie(createAccessTokenCookie(accessToken));
+        response.addCookie(createRefreshTokenCookie(refreshToken));
+    }
+
+    public void revokeCookies(HttpServletResponse response) {
+        Cookie accessTokenCookie = createAccessTokenCookie(null, 0);
+        Cookie refreshTokenCookie = createRefreshTokenCookie(null, 0);
+
+        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
     }
 
 }

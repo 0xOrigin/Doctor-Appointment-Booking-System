@@ -1,6 +1,7 @@
 package com.xorigin.doctorappointmentmanagementsystem.core.jwt;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -65,7 +66,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
             setAuthentication(request, userDetails);
 
-        } catch (ExpiredJwtException e) {
+        } catch (ExpiredJwtException | MalformedJwtException e) {
             handlerExceptionResolver.resolveException(request, response, null, new BadCredentialsException(e.getLocalizedMessage()));
             return;
         }
