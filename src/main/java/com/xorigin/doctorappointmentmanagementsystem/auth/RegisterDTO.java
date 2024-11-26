@@ -3,6 +3,7 @@ package com.xorigin.doctorappointmentmanagementsystem.auth;
 import com.xorigin.doctorappointmentmanagementsystem.users.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
@@ -15,7 +16,7 @@ public class RegisterDTO {
     private String password;
     private String firstName;
     private String lastName;
-    @NotEmpty
+    @NotNull
     private Role role;
 
 }

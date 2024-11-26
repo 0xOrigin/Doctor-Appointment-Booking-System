@@ -1,5 +1,6 @@
 package com.xorigin.doctorappointmentmanagementsystem.core.jwt;
 
+import com.fasterxml.uuid.Generators;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
@@ -39,7 +40,7 @@ public class JwtService {
 
     public JwtService(
             @Value("${jwt.secret}") String secretKey,
-            @Value("${jwt.expiration.access-token:10}") Integer accessTokenExpiration,
+            @Value("${jwt.expiration.access-token:86400}") Integer accessTokenExpiration,
             @Value("${jwt.expiration.refresh-token:604800}") Integer refreshTokenExpiration,
             @Value("${jwt.cookie.access-token.name:accessToken}") String accessTokenCookieName,
             @Value("${jwt.cookie.access-token.path:/}") String accessTokenCookiePath,
@@ -117,6 +118,14 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
+    public String extractJti(String token) {
+        return extractClaim(token, Claims::getId);
+    }
+
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
     public TokenType extractTokenType(String token) {
         return TokenType.fromValue(extractClaim(token, claims -> claims.get(CLAIM_KEY_TOKEN_TYPE, String.class)));
     }
@@ -126,6 +135,7 @@ public class JwtService {
         return Jwts
             .builder()
             .claims(extraClaims)
+            .id(Generators.timeBasedEpochGenerator().generate().toString())
             .subject(userDetails.getUsername())
             .issuedAt(new Date(System.currentTimeMillis()))
             .expiration(new Date(System.currentTimeMillis() + (expiration * 1000)))

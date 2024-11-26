@@ -1,11 +1,13 @@
 package com.xorigin.doctorappointmentmanagementsystem.auth;
 
-import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
+import com.xorigin.doctorappointmentmanagementsystem.core.jwt.IssuedRefreshToken;
+import com.xorigin.doctorappointmentmanagementsystem.core.jwt.IssuedRefreshTokenRepository;
 import com.xorigin.doctorappointmentmanagementsystem.core.jwt.JwtService;
 import com.xorigin.doctorappointmentmanagementsystem.users.User;
 import com.xorigin.doctorappointmentmanagementsystem.users.UserRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,21 +20,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AuthService {
 
-//    private final TokenRepository tokenRepository;
+    private final IssuedRefreshTokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
     private final UserRepository repository;
-    private final UserProvider userProvider;
     private final AuthMapper authMapper;
 
     public AuthService(
-            UserProvider userProvider,
+            IssuedRefreshTokenRepository tokenRepository,
             UserRepository repository,
             PasswordEncoder passwordEncoder,
             JwtService jwtService,
@@ -40,22 +42,69 @@ public class AuthService {
             AuthMapper authMapper,
             UserDetailsService userDetailsService
     ) {
+        this.tokenRepository = tokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
         this.repository = repository;
-        this.userProvider = userProvider;
         this.authMapper = authMapper;
         this.userDetailsService = userDetailsService;
     }
 
-    public UserAuthResponseDTO register(RegisterDTO dto, HttpServletResponse response) {
+    public UserAuthResponseDTO register(RegisterDTO dto) {
         User user = authMapper.toEntity(dto, passwordEncoder);
         user = repository.save(user);
+        return authMapper.toRetrieveDto(user);
+    }
+
+    public AuthResponseDTO login(LoginDTO dto, HttpServletResponse response) {
+        User user = authenticate(dto);
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
-//        saveUserToken(savedUser, jwtToken);
-        return authMapper.toRetrieveDto(user);
+
+        createIssuedRefreshToken(user, refreshToken);
+        jwtService.setCookies(response, accessToken, refreshToken);
+        return authMapper.toRetrieveDto(user, accessToken, refreshToken);
+    }
+
+    public void logout(HttpServletResponse response) {
+        jwtService.revokeCookies(response);
+    }
+
+    public AuthResponseDTO refresh(String refreshToken, HttpServletRequest request, HttpServletResponse response) {
+        Optional<String> token = Optional.ofNullable(refreshToken).or(() -> jwtService.resolveRefreshToken(request));
+        if (token.isEmpty())
+            throw new BadCredentialsException("Refresh token is missing");
+
+        String userId;
+        UUID jti;
+
+        try {
+            if (!jwtService.isRefreshToken(token.get()))
+                throw new BadCredentialsException("Invalid refresh token");
+
+            userId = jwtService.extractUsername(token.get());
+            if (userId == null)
+                throw new BadCredentialsException("Invalid refresh token");
+
+            jti = UUID.fromString(jwtService.extractJti(token.get()));
+        } catch (ExpiredJwtException | MalformedJwtException | SignatureException e) {
+            throw new BadCredentialsException(e.getLocalizedMessage());
+        }
+
+        Optional<IssuedRefreshToken> tokenOptional = getIssuedRefreshToken(jti);
+        if (tokenOptional.isEmpty())
+            throw new BadCredentialsException("Refresh token is revoked");
+
+        revokeIssuedRefreshToken(tokenOptional.get());
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
+        String accessToken = jwtService.generateAccessToken(userDetails);
+        String newRefreshToken = jwtService.generateRefreshToken(userDetails);
+
+        createIssuedRefreshToken(tokenOptional.get().getUser(), newRefreshToken);
+        jwtService.setCookies(response, accessToken, newRefreshToken);
+        return authMapper.toRetrieveDto(null, accessToken, newRefreshToken);
     }
 
     private User authenticate(LoginDTO dto) {
@@ -76,65 +125,25 @@ public class AuthService {
         }
     }
 
-    public AuthResponseDTO login(LoginDTO dto, HttpServletResponse response) {
-        User user = authenticate(dto);
-        String accessToken = jwtService.generateAccessToken(user);
-        String refreshToken = jwtService.generateRefreshToken(user);
-        jwtService.setCookies(response, accessToken, refreshToken);
-//        revokeAllUserTokens(user);
-//        saveUserToken(user, jwtToken);
-        return authMapper.toRetrieveDto(user, accessToken, refreshToken);
+    private void createIssuedRefreshToken(User user, String refreshToken) {
+        IssuedRefreshToken issuedRefreshToken = IssuedRefreshToken
+                .builder()
+                .jti(UUID.fromString(jwtService.extractJti(refreshToken)))
+                .user(user)
+                .expiresAt(jwtService.extractExpiration(refreshToken).toInstant())
+                .isRevoked(false)
+                .build();
+
+        tokenRepository.save(issuedRefreshToken);
     }
 
-    public AuthResponseDTO refresh(String refreshToken, HttpServletRequest request, HttpServletResponse response) {
-        Optional<String> token = Optional.ofNullable(refreshToken).or(() -> jwtService.resolveRefreshToken(request));
-        if (token.isEmpty())
-            throw new BadCredentialsException("Refresh token is missing");
-
-        String userId;
-
-        try {
-            if (!jwtService.isRefreshToken(token.get()))
-                throw new BadCredentialsException("Invalid refresh token");
-
-            userId = jwtService.extractUsername(token.get());
-            if (userId == null)
-                throw new BadCredentialsException("Invalid refresh token");
-        } catch (ExpiredJwtException | MalformedJwtException e) {
-            throw new BadCredentialsException(e.getLocalizedMessage());
-        }
-
-        UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
-        String accessToken = jwtService.generateAccessToken(userDetails);
-        String newRefreshToken = jwtService.generateRefreshToken(userDetails);
-        jwtService.setCookies(response, accessToken, newRefreshToken);
-        return authMapper.toRetrieveDto(null, accessToken, newRefreshToken);
+    private Optional<IssuedRefreshToken> getIssuedRefreshToken(UUID jti) {
+        return tokenRepository.findByJtiAndIsRevokedIsFalse(jti);
     }
 
-    public void logout(HttpServletResponse response) {
-        jwtService.revokeCookies(response);
+    private void revokeIssuedRefreshToken(IssuedRefreshToken issuedRefreshToken) {
+        issuedRefreshToken.setIsRevoked(true);
+        tokenRepository.save(issuedRefreshToken);
     }
-
-//    private void saveUserToken(User user, String jwtToken) {
-//        var token = Token.builder()
-//                .user(user)
-//                .token(jwtToken)
-//                .tokenType(TokenType.BEARER)
-//                .expired(false)
-//                .revoked(false)
-//                .build();
-//        tokenRepository.save(token);
-//    }
-
-//    private void revokeAllUserTokens(User user) {
-//        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
-//        if (validUserTokens.isEmpty())
-//            return;
-//        validUserTokens.forEach(token -> {
-//            token.setExpired(true);
-//            token.setRevoked(true);
-//        });
-//        tokenRepository.saveAll(validUserTokens);
-//    }
 
 }

@@ -1,6 +1,5 @@
 package com.xorigin.doctorappointmentmanagementsystem.auth;
 
-import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.ApiResponse;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.ResponseFactory;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +20,6 @@ public class AuthController {
 
     public AuthController(
             ResponseFactory responseFactory,
-            UserProvider userProvider,
             AuthService authService
     ) {
         this.responseFactory = responseFactory;
@@ -30,7 +28,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterDTO dto, HttpServletResponse response) {
-        UserAuthResponseDTO responseDto = service.register(dto, response);
+        UserAuthResponseDTO responseDto = service.register(dto);
         ApiResponse<?> apiResponse = responseFactory.createResponse("Success", responseDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
     }
