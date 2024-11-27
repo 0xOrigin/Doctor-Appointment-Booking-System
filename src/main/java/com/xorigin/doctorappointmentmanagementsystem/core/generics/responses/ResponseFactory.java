@@ -8,4 +8,6 @@ public interface ResponseFactory {
 
     <N> ApiResponse<?> createResponse(String message, N data);
 
+    ApiResponse<?> createResponse(String message);
+
 }

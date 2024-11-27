@@ -22,4 +22,9 @@ public class StandardResponseFactory implements ResponseFactory {
         return createResponse(message, data, null, null);
     }
 
+    @Override
+    public ApiResponse<?> createResponse(String message) {
+        return createResponse(message, null, null, null);
+    }
+
 }
