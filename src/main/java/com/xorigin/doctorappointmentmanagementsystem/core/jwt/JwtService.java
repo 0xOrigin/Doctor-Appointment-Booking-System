@@ -114,7 +114,7 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    public String extractUsername(String token) {
+    public String extractSubject(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -130,17 +130,32 @@ public class JwtService {
         return TokenType.fromValue(extractClaim(token, claims -> claims.get(CLAIM_KEY_TOKEN_TYPE, String.class)));
     }
 
+    public String generateToken(Map<String, Object> extraClaims, String subject, Integer expiration) {
+        return Jwts
+                .builder()
+                .claims(extraClaims)
+                .subject(subject)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + (expiration * 1000)))
+                .signWith(getSignInKey())
+                .compact();
+    }
+
+    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails, Integer expiration) {
+        return Jwts
+                .builder()
+                .claims(extraClaims)
+                .id(Generators.timeBasedEpochGenerator().generate().toString())
+                .subject(userDetails.getUsername())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + (expiration * 1000)))
+                .signWith(getSignInKey())
+                .compact();
+    }
+
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails, TokenType tokenType, Integer expiration) {
         extraClaims.put(CLAIM_KEY_TOKEN_TYPE, tokenType.getValue());
-        return Jwts
-            .builder()
-            .claims(extraClaims)
-            .id(Generators.timeBasedEpochGenerator().generate().toString())
-            .subject(userDetails.getUsername())
-            .issuedAt(new Date(System.currentTimeMillis()))
-            .expiration(new Date(System.currentTimeMillis() + (expiration * 1000)))
-            .signWith(getSignInKey())
-            .compact();
+        return generateToken(extraClaims, userDetails, expiration);
     }
 
     public String generateAccessToken(UserDetails userDetails) {

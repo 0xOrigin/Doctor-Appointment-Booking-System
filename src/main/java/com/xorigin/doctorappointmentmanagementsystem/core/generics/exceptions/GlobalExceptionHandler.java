@@ -3,6 +3,7 @@ package com.xorigin.doctorappointmentmanagementsystem.core.generics.exceptions;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.ApiErrorResponse;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.StandardApiErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ValidationException;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -55,6 +56,16 @@ public class GlobalExceptionHandler {
                 groupedErrors
         );
         return ResponseEntity.badRequest().body(errorResponse);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<?> handleException(@NotNull ValidationException e, WebRequest request, Locale locale) {
+        ApiErrorResponse errorResponse = new StandardApiErrorResponse(
+                e.getLocalizedMessage(),
+                getRequestPath(request),
+                new HashMap<>()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)

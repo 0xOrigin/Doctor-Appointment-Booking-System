@@ -40,18 +40,32 @@ public class AuthController {
         return ResponseEntity.ok().body(apiResponse);
     }
 
+    @GetMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        service.logout(response);
+        ApiResponse<?> apiResponse = responseFactory.createResponse("Success", null);
+        return ResponseEntity.ok().body(apiResponse);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordDTO dto) {
+        service.forgotPassword(dto);
+        ApiResponse<?> apiResponse = responseFactory.createResponse("You will receive an email to reset your password");
+        return ResponseEntity.ok().body(apiResponse);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestParam("token") String token, @Valid @RequestBody ResetPasswordDTO dto) {
+        service.resetPassword(token, dto);
+        ApiResponse<?> apiResponse = responseFactory.createResponse("Success");
+        return ResponseEntity.ok().body(apiResponse);
+    }
+
     @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response, @RequestBody(required = false) Map<String, String> body) {
         String refreshToken = body == null ? null : body.get("refreshToken");
         AuthResponseDTO responseDto = service.refresh(refreshToken, request, response);
         ApiResponse<?> apiResponse = responseFactory.createResponse("Success", responseDto);
-        return ResponseEntity.ok().body(apiResponse);
-    }
-
-    @GetMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
-        service.logout(response);
-        ApiResponse<?> apiResponse = responseFactory.createResponse("Success", null);
         return ResponseEntity.ok().body(apiResponse);
     }
 
