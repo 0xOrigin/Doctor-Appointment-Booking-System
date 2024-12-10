@@ -2,6 +2,8 @@ package com.xorigin.doctorappointmentmanagementsystem.core.entities;
 
 import com.xorigin.doctorappointmentmanagementsystem.users.User;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -15,7 +17,8 @@ import java.time.Instant;
 public class BaseAuditEntity extends BaseEntity {
 
     @CreatedBy
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.SELECT)
     @JoinColumn(name = "created_by", nullable = false, updatable = false)
     protected User createdBy;
 
@@ -25,6 +28,7 @@ public class BaseAuditEntity extends BaseEntity {
 
     @LastModifiedBy
     @ManyToOne
+    @Fetch(FetchMode.SELECT)
     @JoinColumn(name = "updated_by", insertable = false)
     protected User updatedBy;
 

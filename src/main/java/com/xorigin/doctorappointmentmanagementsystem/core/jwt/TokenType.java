@@ -1,7 +1,5 @@
 package com.xorigin.doctorappointmentmanagementsystem.core.jwt;
 
-import com.xorigin.doctorappointmentmanagementsystem.core.generics.specifications.filters.base.Operator;
-
 import java.util.HashMap;
 import java.util.Map;
 

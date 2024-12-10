@@ -5,17 +5,21 @@ import com.xorigin.doctorappointmentmanagementsystem.core.entities.BaseAuditEnti
 import com.xorigin.doctorappointmentmanagementsystem.core.filefields.listeners.FileDeletionListener;
 import com.xorigin.doctorappointmentmanagementsystem.core.filefields.annotations.UploadLocation;
 import com.xorigin.doctorappointmentmanagementsystem.core.filefields.StorageAwareMultipartFile;
+import com.xorigin.doctorappointmentmanagementsystem.doctor.Doctor;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Builder
 @NoArgsConstructor
@@ -49,7 +53,13 @@ public class User extends BaseAuditEntity implements UserDetails {
 
     private LocalDate dateOfBirth;
 
-    private LocalTime enTime;
+    @OneToOne(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.SELECT)
+    private Doctor doctor;
+
+    public boolean isDoctor() {
+        return role == Role.DOCTOR && doctor != null;
+    }
 
     @UploadLocation("users/pictures")
     private StorageAwareMultipartFile picture;

@@ -7,7 +7,10 @@ import lombok.Data;
 public class AuthResponseDTO {
 
     private String accessToken;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String refreshToken;
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private UserAuthResponseDTO user;
 

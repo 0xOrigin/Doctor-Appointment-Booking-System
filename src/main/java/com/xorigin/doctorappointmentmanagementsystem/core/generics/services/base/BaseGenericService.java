@@ -4,6 +4,7 @@ import com.xorigin.doctorappointmentmanagementsystem.core.generics.mappers.base.
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.repositories.base.BaseGenericRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -117,14 +118,17 @@ public abstract class BaseGenericService<
         return getRepository().count(getSpec().orElse(null));
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public Page<T> getPage(PageRequest pageRequest) {
         return getRepository().findAll(getSpec().orElse(null), pageRequest);
     }
 
+    @Transactional
     public List<T> findAll(Sort sort) {
         return getRepository().findAll(getSpec().orElse(null), sort);
     }
 
+    @Transactional
     public T findById(ID id) {
         return getRepository().findById(id)
                 .orElseThrow(this::throwNotFoundException);
@@ -154,6 +158,7 @@ public abstract class BaseGenericService<
         getMapper().updateEntityFromPartialUpdateDto(instance, dto);
     }
 
+    @Transactional
     public T create(CreateDTO dto) {
         T instance = getInstanceFromCreateDto(dto);
         preCreate(instance, dto);
@@ -162,6 +167,7 @@ public abstract class BaseGenericService<
         return instance;
     }
 
+    @Transactional
     public T update(T instance, UpdateDTO dto) {
         preUpdate(instance, dto);
         updateInstanceFromUpdateDto(instance, dto);
@@ -170,6 +176,7 @@ public abstract class BaseGenericService<
         return instance;
     }
 
+    @Transactional
     public T partialUpdate(T instance, PartialUpdateDTO dto) {
         prePartialUpdate(instance, dto);
         updateInstanceFromPartialUpdateDto(instance, dto);
@@ -178,6 +185,7 @@ public abstract class BaseGenericService<
         return instance;
     }
 
+    @Transactional
     public void delete(T instance) {
         getRepository().delete(instance);
     }

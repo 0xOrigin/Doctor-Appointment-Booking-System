@@ -7,6 +7,7 @@ import jakarta.persistence.PreRemove;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
+// TODO: handle file deletion on update
 public class FileDeletionListener {
 
     private final FlexStorageAdapter flexStorageAdapter;

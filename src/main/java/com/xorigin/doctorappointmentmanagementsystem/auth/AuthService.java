@@ -76,7 +76,8 @@ public class AuthService {
 
         createIssuedRefreshToken(user, refreshToken);
         jwtService.setCookies(response, accessToken, refreshToken);
-        return authMapper.toRetrieveDto(user, accessToken, refreshToken);
+        // Don't send refresh token, for security purposes
+        return authMapper.toRetrieveDto(user, accessToken, null);
     }
 
     public void logout(HttpServletResponse response) {

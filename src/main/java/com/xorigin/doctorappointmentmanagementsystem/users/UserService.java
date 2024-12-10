@@ -3,6 +3,7 @@ package com.xorigin.doctorappointmentmanagementsystem.users;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.services.UuidSingleDtoGenericService;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.services.base.MessageByLocaleService;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ public class UserService extends UuidSingleDtoGenericService<User, UserRepositor
             PasswordEncoder passwordEncoder,
             MessageByLocaleService messageByLocaleService
     ) {
-        super(userProvider, repository, mapper, spec, messageByLocaleService);
+        super(userProvider, repository, mapper, (Specification<User>) spec, messageByLocaleService);
         this.passwordEncoder = passwordEncoder;
     }
 

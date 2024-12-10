@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,6 +13,6 @@ public interface IssuedRefreshTokenRepository extends JpaRepository<IssuedRefres
 
     Optional<IssuedRefreshToken> findByJtiAndIsRevokedIsFalse(UUID jti);
 
-    void deleteAllByExpiresAtBefore(Instant now);
+    List<IssuedRefreshToken> findAllByExpiresAtBefore(Instant now);
 
 }

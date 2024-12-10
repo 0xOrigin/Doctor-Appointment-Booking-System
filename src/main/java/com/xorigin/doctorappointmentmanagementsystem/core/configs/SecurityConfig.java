@@ -17,7 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity(securedEnabled = true, proxyTargetClass = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -30,17 +30,17 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests((request) -> request
-                        .requestMatchers(
-                                "/monitoring",
-                                "api/v1/auth/**",
-                                "*/users/**"
-                                ,"/users/**"
-                                ,"/uploads/**"
-                                ,"/media/**"
-                        ).permitAll()
-//                        .anyRequest().authenticated()
-                )
+//                .authorizeHttpRequests((request) -> request
+//                        .requestMatchers(
+//                                "/monitoring",
+//                                "api/v1/auth/**",
+//                                "*/users/**"
+//                                ,"/users/**"
+//                                ,"/uploads/**"
+//                                ,"/media/**"
+//                        ).permitAll()
+////                        .anyRequest().authenticated()
+//                )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

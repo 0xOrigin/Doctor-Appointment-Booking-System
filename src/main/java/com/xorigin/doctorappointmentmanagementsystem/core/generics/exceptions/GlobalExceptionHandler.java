@@ -1,5 +1,7 @@
 package com.xorigin.doctorappointmentmanagementsystem.core.generics.exceptions;
 
+import io.github._0xorigin.exceptions.InvalidFilterConfigurationException;
+import io.github._0xorigin.exceptions.InvalidQueryFilterValueException;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.ApiErrorResponse;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.StandardApiErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
@@ -12,6 +14,7 @@ import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -56,6 +59,48 @@ public class GlobalExceptionHandler {
                 groupedErrors
         );
         return ResponseEntity.badRequest().body(errorResponse);
+    }
+
+    @ExceptionHandler(InvalidQueryFilterValueException.class)
+    public ResponseEntity<?> handleException(@NotNull InvalidQueryFilterValueException e, WebRequest request, Locale locale) {
+        Map<String, List<String>> groupedErrors = e.getMethodArgumentNotValidException()
+                .getBindingResult()
+                .getAllErrors()
+                .stream()
+                .filter(error -> error instanceof FieldError)
+                .map(error -> (FieldError) error)
+                .collect(Collectors.groupingBy(
+                        FieldError::getField,
+                        Collectors.mapping(FieldError::getDefaultMessage, Collectors.toList())
+                ));
+
+        ApiErrorResponse errorResponse = new StandardApiErrorResponse(
+                "Query strings validation failed",
+                getRequestPath(request),
+                groupedErrors
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(InvalidFilterConfigurationException.class)
+    public ResponseEntity<?> handleException(@NotNull InvalidFilterConfigurationException e, WebRequest request, Locale locale) {
+        Map<String, List<String>> groupedErrors = e.getMethodArgumentNotValidException()
+                .getBindingResult()
+                .getAllErrors()
+                .stream()
+                .filter(error -> error instanceof FieldError)
+                .map(error -> (FieldError) error)
+                .collect(Collectors.groupingBy(
+                        FieldError::getField,
+                        Collectors.mapping(FieldError::getDefaultMessage, Collectors.toList())
+                ));
+
+        ApiErrorResponse errorResponse = new StandardApiErrorResponse(
+                "Query strings configuration failed",
+                getRequestPath(request),
+                groupedErrors
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
     @ExceptionHandler(ValidationException.class)
@@ -120,6 +165,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<?> handleException(@NotNull BadCredentialsException e, WebRequest request, Locale locale) {
+        ApiErrorResponse errorResponse = new StandardApiErrorResponse(
+                e.getLocalizedMessage(),
+                getRequestPath(request),
+                new HashMap<>()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<?> handleException(@NotNull AuthorizationDeniedException e, WebRequest request, Locale locale) {
         ApiErrorResponse errorResponse = new StandardApiErrorResponse(
                 e.getLocalizedMessage(),
                 getRequestPath(request),
