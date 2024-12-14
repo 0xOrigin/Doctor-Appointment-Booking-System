@@ -37,8 +37,8 @@ public class UserController extends UuidSingleDtoGenericCrudController<User, Use
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> findOne(HttpServletRequest request, UUID uuid) {
-        return super.findOne(request, uuid);
+    public ResponseEntity<?> findOne(HttpServletRequest request, UUID id) {
+        return super.findOne(request, id);
     }
 
     @Override
@@ -49,13 +49,13 @@ public class UserController extends UuidSingleDtoGenericCrudController<User, Use
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> updateJson(HttpServletRequest request, UUID uuid, UserDTO userDTO) {
-        return super.updateJson(request, uuid, userDTO);
+    public ResponseEntity<?> updateJson(HttpServletRequest request, UUID id, UserDTO userDTO) {
+        return super.updateJson(request, id, userDTO);
     }
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Void> delete(HttpServletRequest request, UUID uuid) {
-        return super.delete(request, uuid);
+    public ResponseEntity<Void> delete(HttpServletRequest request, UUID id) {
+        return super.delete(request, id);
     }
 }

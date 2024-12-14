@@ -1,8 +1,7 @@
 package com.xorigin.doctorappointmentmanagementsystem.users;
 
-import com.xorigin.doctorappointmentmanagementsystem.core.filefields.StorageAwareMultipartFile;
-import com.xorigin.doctorappointmentmanagementsystem.core.filefields.validation.ValidImage;
-import com.xorigin.doctorappointmentmanagementsystem.doctor.Doctor;
+import io.github._0xorigin.storageawaremultipartfile.StorageAwareMultipartFile;
+import io.github._0xorigin.storageawaremultipartfile.annotations.ValidImage;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

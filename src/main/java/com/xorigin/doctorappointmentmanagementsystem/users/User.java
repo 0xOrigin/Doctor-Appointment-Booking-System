@@ -1,11 +1,10 @@
 package com.xorigin.doctorappointmentmanagementsystem.users;
 
-
 import com.xorigin.doctorappointmentmanagementsystem.core.entities.BaseAuditEntity;
-import com.xorigin.doctorappointmentmanagementsystem.core.filefields.listeners.FileDeletionListener;
-import com.xorigin.doctorappointmentmanagementsystem.core.filefields.annotations.UploadLocation;
-import com.xorigin.doctorappointmentmanagementsystem.core.filefields.StorageAwareMultipartFile;
 import com.xorigin.doctorappointmentmanagementsystem.doctor.Doctor;
+import io.github._0xorigin.storageawaremultipartfile.StorageAwareMultipartFile;
+import io.github._0xorigin.storageawaremultipartfile.annotations.UploadLocation;
+import io.github._0xorigin.storageawaremultipartfile.listeners.FileDeletionListener;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -17,9 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Builder
 @NoArgsConstructor

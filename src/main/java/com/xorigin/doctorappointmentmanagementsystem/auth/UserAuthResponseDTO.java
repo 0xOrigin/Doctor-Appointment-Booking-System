@@ -1,8 +1,8 @@
 package com.xorigin.doctorappointmentmanagementsystem.auth;
 
-import com.xorigin.doctorappointmentmanagementsystem.core.filefields.StorageAwareMultipartFile;
 import com.xorigin.doctorappointmentmanagementsystem.users.Role;
 import com.xorigin.doctorappointmentmanagementsystem.users.User;
+import io.github._0xorigin.storageawaremultipartfile.StorageAwareMultipartFile;
 import lombok.Data;
 
 import java.time.Instant;
