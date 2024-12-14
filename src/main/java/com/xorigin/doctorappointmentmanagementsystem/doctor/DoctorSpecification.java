@@ -1,8 +1,8 @@
 package com.xorigin.doctorappointmentmanagementsystem.doctor;
 
-import io.github._0xorigin.FilterContext;
-import io.github._0xorigin.base.Operator;
-import io.github._0xorigin.base.QueryFilterBuilder;
+import io.github._0xorigin.queryfilterbuilder.FilterContext;
+import io.github._0xorigin.queryfilterbuilder.base.Operator;
+import io.github._0xorigin.queryfilterbuilder.base.QueryFilterBuilder;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.specifications.GenericSpecification;
 import jakarta.persistence.criteria.CriteriaBuilder;

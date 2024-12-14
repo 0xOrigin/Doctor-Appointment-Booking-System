@@ -1,7 +1,7 @@
 package com.xorigin.doctorappointmentmanagementsystem.core.generics.exceptions;
 
-import io.github._0xorigin.exceptions.InvalidFilterConfigurationException;
-import io.github._0xorigin.exceptions.InvalidQueryFilterValueException;
+import io.github._0xorigin.queryfilterbuilder.exceptions.InvalidFilterConfigurationException;
+import io.github._0xorigin.queryfilterbuilder.exceptions.InvalidQueryFilterValueException;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.ApiErrorResponse;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.StandardApiErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
