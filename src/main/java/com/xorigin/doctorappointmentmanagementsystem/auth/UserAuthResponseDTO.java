@@ -2,7 +2,7 @@ package com.xorigin.doctorappointmentmanagementsystem.auth;
 
 import com.xorigin.doctorappointmentmanagementsystem.users.Role;
 import com.xorigin.doctorappointmentmanagementsystem.users.User;
-import io.github._0xorigin.storageawaremultipartfile.StorageAwareMultipartFile;
+//import io.github._0xorigin.storageawaremultipartfile.StorageAwareMultipartFile;
 import lombok.Data;
 
 import java.time.Instant;
@@ -19,6 +19,6 @@ public class UserAuthResponseDTO {
     private Boolean isActive;
     private Instant createdAt;
     private User createdBy;
-    private StorageAwareMultipartFile picture;
+//    private StorageAwareMultipartFile picture;
 
 }

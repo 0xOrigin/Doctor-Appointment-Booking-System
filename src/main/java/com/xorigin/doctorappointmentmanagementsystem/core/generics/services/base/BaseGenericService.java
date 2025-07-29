@@ -4,6 +4,7 @@ import com.xorigin.doctorappointmentmanagementsystem.core.generics.mappers.base.
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.repositories.base.BaseGenericRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -82,7 +83,7 @@ public abstract class BaseGenericService<
         return mapper;
     }
 
-    public Optional<Specification<T>> getSpec() {
+    public Optional<Specification<T>> getSpec(HttpServletRequest request) {
         return Optional.ofNullable(spec);
     }
 
@@ -114,18 +115,18 @@ public abstract class BaseGenericService<
         return mapper.apply(instance);
     }
 
-    public Long getCount() {
-        return getRepository().count(getSpec().orElse(null));
+    public Long getCount(HttpServletRequest request) {
+        return getRepository().count(getSpec(request).orElse(null));
     }
 
     @org.springframework.transaction.annotation.Transactional
-    public Page<T> getPage(PageRequest pageRequest) {
-        return getRepository().findAll(getSpec().orElse(null), pageRequest);
+    public Page<T> getPage(HttpServletRequest request, PageRequest pageRequest) {
+        return getRepository().findAll(getSpec(request).orElse(null), pageRequest);
     }
 
     @Transactional
-    public List<T> findAll(Sort sort) {
-        return getRepository().findAll(getSpec().orElse(null), sort);
+    public List<T> findAll(HttpServletRequest request, Sort sort) {
+        return getRepository().findAll(getSpec(request).orElse(null), sort);
     }
 
     @Transactional

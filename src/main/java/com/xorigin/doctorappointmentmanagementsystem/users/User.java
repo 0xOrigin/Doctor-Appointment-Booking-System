@@ -2,9 +2,9 @@ package com.xorigin.doctorappointmentmanagementsystem.users;
 
 import com.xorigin.doctorappointmentmanagementsystem.core.entities.BaseAuditEntity;
 import com.xorigin.doctorappointmentmanagementsystem.doctor.Doctor;
-import io.github._0xorigin.storageawaremultipartfile.StorageAwareMultipartFile;
-import io.github._0xorigin.storageawaremultipartfile.annotations.UploadLocation;
-import io.github._0xorigin.storageawaremultipartfile.listeners.FileDeletionListener;
+//import io.github._0xorigin.storageawaremultipartfile.StorageAwareMultipartFile;
+//import io.github._0xorigin.storageawaremultipartfile.annotations.UploadLocation;
+//import io.github._0xorigin.storageawaremultipartfile.listeners.FileDeletionListener;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -29,9 +29,8 @@ import java.util.List;
         name = "createdBy",
         joinColumns = @JoinColumn(name = "created_by", nullable = true, updatable = false)
 )
-@EntityListeners(FileDeletionListener.class)
+//@EntityListeners(FileDeletionListener.class)
 public class User extends BaseAuditEntity implements UserDetails {
-
     private String firstName;
     private String lastName;
     @Column(unique = true, nullable = false)
@@ -58,8 +57,8 @@ public class User extends BaseAuditEntity implements UserDetails {
         return role == Role.DOCTOR && doctor != null;
     }
 
-    @UploadLocation("users/pictures")
-    private StorageAwareMultipartFile picture;
+//    @UploadLocation("users\\pictures")
+//    private StorageAwareMultipartFile picture;
 
     @Override
     public String getUsername() {

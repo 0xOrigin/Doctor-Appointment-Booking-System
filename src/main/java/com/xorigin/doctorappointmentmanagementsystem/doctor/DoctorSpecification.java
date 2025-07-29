@@ -1,7 +1,7 @@
 package com.xorigin.doctorappointmentmanagementsystem.doctor;
 
 import io.github._0xorigin.queryfilterbuilder.FilterContext;
-import io.github._0xorigin.queryfilterbuilder.base.Operator;
+import io.github._0xorigin.queryfilterbuilder.base.filteroperator.Operator;
 import io.github._0xorigin.queryfilterbuilder.base.QueryFilterBuilder;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.UserProvider;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.specifications.GenericSpecification;
@@ -21,17 +21,18 @@ public class DoctorSpecification extends GenericSpecification<Doctor> {
 
     @Override
     protected Predicate getFilterPredicate(Root<Doctor> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return getFilterBuilder().buildFilterPredicate(
-                root,
-                query,
-                cb,
-                new FilterContext<Doctor>()
-                        .addFilter("createdAt", Operator.BETWEEN)
-                        .addFilter("createdBy__id", Operator.EQ)
-                        .addFilter("createdBy__firstName", Operator.EQ)
-                        .addFilter("lastLogin", Operator.EQ, Operator.GTE, Operator.BETWEEN)
-                        .addFilter("createdBy__lastLogin__createdBy", Operator.EQ, Operator.GTE, Operator.BETWEEN)
-        );
+        return getFilterBuilder().buildFilterSpecification(
+                FilterContext.buildForType(Doctor.class)
+                        .queryParam(null, builder -> {
+                            builder.addFilter("id", Operator.EQ)
+                                    .addFilter("createdAt", Operator.BETWEEN)
+                                    .addFilter("createdBy__id", Operator.EQ)
+                                    .addFilter("createdBy__firstName", Operator.EQ)
+                                    .addFilter("lastLogin", Operator.EQ, Operator.GTE, Operator.BETWEEN)
+                                    .addFilter("createdBy__lastLogin__createdBy", Operator.EQ, Operator.GTE, Operator.BETWEEN);
+                        })
+                        .build()
+        ).toPredicate(root, query, cb);
     }
 
 }

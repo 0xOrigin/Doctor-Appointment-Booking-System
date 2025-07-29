@@ -55,7 +55,7 @@ spring:
     from-name: ${EMAIL_FROM_NAME}
     password: ${EMAIL_PASSWORD}
     protocol: smtp
-    test-connection: true
+    test-connection: false
     ssl:
       enabled: true
     properties:
@@ -80,3 +80,7 @@ core-crud:
 #    org.springframework.security: DEBUG
 #    com.xorigin.doctorappointmentmanagementsystem: DEBUG
 #    root: DEBUG
+  #query-filter-builder:
+#  query-param:
+#    defaults:
+#      field-delimiter: '|'

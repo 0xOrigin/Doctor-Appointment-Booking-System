@@ -104,14 +104,14 @@ public abstract class GenericCrudController<
         }
 
         if (!getOptions().isPaginationEnabled()) {
-            Long count = getService().getCount();
-            List<T> instances = getService().findAll(pageable.getSort());
+            Long count = getService().getCount(request);
+            List<T> instances = getService().findAll(request, pageable.getSort());
             List<?> mappedInstances = getService().getMappedFindAll(instances);
             ApiResponse<?> apiResponse = getResponseFactory().createResponse("Success", mappedInstances, count, null);
             return ResponseEntity.ok().body(apiResponse);
         }
 
-        Page<T> page = getService().getPage(getPageRequest(pageable));
+        Page<T> page = getService().getPage(request, getPageRequest(pageable));
         ApiResponse<?> apiResponse = getResponseFactory().createResponse(
                 "Success",
                 getService().getMappedFindAll(page),

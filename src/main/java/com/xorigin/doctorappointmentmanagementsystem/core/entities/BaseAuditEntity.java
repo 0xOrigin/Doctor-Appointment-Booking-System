@@ -17,7 +17,7 @@ import java.time.Instant;
 public class BaseAuditEntity extends BaseEntity {
 
     @CreatedBy
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @Fetch(FetchMode.SELECT)
     @JoinColumn(name = "created_by", nullable = false, updatable = false)
     protected User createdBy;
