@@ -75,7 +75,7 @@ public abstract class GenericCrudController<
     }
 
     public PageRequest getPageRequest(Pageable pageable) {
-        return PageRequest.of(getUtils().getPageNumber(pageable), getUtils().getPageSize(pageable, getOptions()), pageable.getSort());
+        return PageRequest.of(getUtils().getPageNumber(pageable), getUtils().getPageSize(pageable, getOptions()));
     }
 
     protected T performCreate(CreateDTO dto) {

@@ -4,10 +4,11 @@ import com.xorigin.doctorappointmentmanagementsystem.core.generics.providers.Use
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.services.UuidSingleDtoGenericService;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.services.base.MessageByLocaleService;
 import io.github._0xorigin.queryfilterbuilder.FilterContext;
-import io.github._0xorigin.queryfilterbuilder.base.QueryFilterBuilder;
+import io.github._0xorigin.queryfilterbuilder.QueryFilterBuilder;
+import io.github._0xorigin.queryfilterbuilder.SortContext;
 import io.github._0xorigin.queryfilterbuilder.base.dtos.FilterRequest;
 import io.github._0xorigin.queryfilterbuilder.base.filteroperator.Operator;
-import io.github._0xorigin.queryfilterbuilder.base.wrappers.ErrorWrapper;
+import io.github._0xorigin.queryfilterbuilder.base.wrappers.FilterErrorWrapper;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -43,8 +44,7 @@ public class UserService extends UuidSingleDtoGenericService<User, UserRepositor
     }
 
     public List<User> findAll(HttpServletRequest request, Sort sort) {
-
-        return super.findAll(request, sort);
+        return super.findAll(request, null);
     }
 
     @Override
@@ -52,23 +52,29 @@ public class UserService extends UuidSingleDtoGenericService<User, UserRepositor
         FilterContext<User> filterContext = FilterContext.buildForType(User.class)
                 .queryParam(request, builder -> {
                     builder.addFilter("createdBy", Operator.EQ)
-                    .addFilter("firstName", (root, cq, cb) -> root.get("lastName"), Operator.EQ)
-                    .addFilter("isActive", Operator.IS_NULL, Operator.IS_NOT_NULL)
+                    .addFilter("firstName", (root, cq, cb) -> root.get("firstName"), Operator.EQ, Operator.BETWEEN)
+                    .addFilter("isActive", Operator.IS_NULL, Operator.IS_NOT_NULL, Operator.GTE)
                     .addFilter("lastLogin", Operator.EQ, Operator.GTE, Operator.STARTS_WITH)
                     .addFilter("createdAt", Operator.EQ, Operator.GTE, Operator.LTE)
-                    .addFilter("createdBy__lastLogin", Operator.EQ, Operator.GTE, Operator.BETWEEN);
+                    .addFilter("createdBy.lastLogin", Operator.EQ, Operator.GTE, Operator.BETWEEN);
                 })
                 .requestBody(List.of(new FilterRequest("firstName", Operator.EQ.getValue(), "Ali")), builder -> {
-                    builder.addFilter("search", String.class, this::search)
-                            .addFilter("isActive", Operator.IS_NULL, Operator.IS_NOT_NULL);
+                    builder.addCustomFilter("search", String.class, this::search)
+                    .addFilter("isActive", Operator.IS_NULL, Operator.IS_NOT_NULL);
                 })
                 .build();
-        // List.of(new FilterRequest("firstName", Operator.EQ.getValue(), "Ali"))
 
-        return Optional.ofNullable(queryFilterBuilder.buildFilterSpecification(filterContext));
+        SortContext<User> sortContext = SortContext.buildForType(User.class)
+                .queryParam(request, builder -> {
+                    builder.addSorts("firstName")
+                    .addDescSort("createdBy.firstName");
+                })
+                .build();
+
+        return Optional.of(queryFilterBuilder.buildFilterSpecification(filterContext).and(queryFilterBuilder.buildSortSpecification(sortContext)));
     }
 
-    private Optional<Predicate> search(Root<User> root, CriteriaQuery<?> query, CriteriaBuilder cb, List<?> values, ErrorWrapper errorWrapper) {
+    private Optional<Predicate> search(Root<User> root, CriteriaQuery<?> query, CriteriaBuilder cb, List<?> values, FilterErrorWrapper errorWrapper) {
         return Optional.ofNullable(cb.or(cb.equal(root.get("firstName"), values.get(0)), cb.equal(root.get("lastName"), values.get(0))));
     }
 

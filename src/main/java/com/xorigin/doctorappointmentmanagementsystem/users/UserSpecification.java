@@ -1,9 +1,9 @@
 package com.xorigin.doctorappointmentmanagementsystem.users;
 
 import io.github._0xorigin.queryfilterbuilder.FilterContext;
-import io.github._0xorigin.queryfilterbuilder.base.wrappers.ErrorWrapper;
+import io.github._0xorigin.queryfilterbuilder.base.wrappers.FilterErrorWrapper;
 import io.github._0xorigin.queryfilterbuilder.base.filteroperator.Operator;
-import io.github._0xorigin.queryfilterbuilder.base.QueryFilterBuilder;
+import io.github._0xorigin.queryfilterbuilder.QueryFilterBuilder;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -40,7 +40,7 @@ public class UserSpecification implements Specification<User> {
 //        return queryFilterBuilder.buildFilterSpecification(filterContext).toPredicate(root, query, cb);
 //    }
 
-    private Optional<Predicate> search(Root<User> root, CriteriaQuery<?> query, CriteriaBuilder cb, List<?> values, ErrorWrapper errorWrapper) {
+    private Optional<Predicate> search(Root<User> root, CriteriaQuery<?> query, CriteriaBuilder cb, List<?> values, FilterErrorWrapper errorWrapper) {
         return Optional.ofNullable(cb.or(cb.equal(root.get("firstName"), values.get(0)), cb.equal(root.get("lastName"), values.get(0))));
     }
 
