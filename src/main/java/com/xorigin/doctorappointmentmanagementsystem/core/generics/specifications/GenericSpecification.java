@@ -51,7 +51,7 @@ public abstract class GenericSpecification<T> implements Specification<T> {
     }
 
     protected Predicate getFilterPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return getFilterBuilder().buildFilterSpecification(FilterContext.<T>builder().build()).toPredicate(root, query, cb);
+        return getFilterBuilder().buildFilterSpecification(FilterContext.buildTemplateForType((Class<T>)null).buildTemplate().newSourceBuilder().buildFilterContext()).toPredicate(root, query, cb);
     }
 
     @Override

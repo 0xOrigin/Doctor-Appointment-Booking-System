@@ -1,9 +1,11 @@
 package com.xorigin.doctorappointmentmanagementsystem.core.generics.exceptions;
 
-import io.github._0xorigin.queryfilterbuilder.exceptions.InvalidFilterConfigurationException;
-import io.github._0xorigin.queryfilterbuilder.exceptions.InvalidQueryFilterValueException;
+import io.github._0xorigin.queryfilterbuilder.base.services.LocalizationService;
+import io.github._0xorigin.queryfilterbuilder.exceptions.QueryBuilderConfigurationException;
+import io.github._0xorigin.queryfilterbuilder.exceptions.InvalidQueryParameterException;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.ApiErrorResponse;
 import com.xorigin.doctorappointmentmanagementsystem.core.generics.responses.StandardApiErrorResponse;
+import io.github._0xorigin.queryfilterbuilder.exceptions.QueryFilterBuilderExceptionHandler;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ValidationException;
 import jakarta.validation.constraints.NotNull;
@@ -26,14 +28,16 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+//@Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends QueryFilterBuilderExceptionHandler {
 
     @Value("${core-crud.exceptions.show-stacktrace:false}")
     private boolean showStackTrace;
     private final MessageSource messageSource;
 
-    public GlobalExceptionHandler(MessageSource messageSource) {
+    public GlobalExceptionHandler(MessageSource messageSource, LocalizationService localizationService) {
+        super(localizationService);
         this.messageSource = messageSource;
     }
 
@@ -44,10 +48,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleException(@NotNull MethodArgumentNotValidException e, WebRequest request, Locale locale) {
         Map<String, List<String>> groupedErrors = e.getBindingResult()
-                .getAllErrors()
+                .getFieldErrors()
                 .stream()
-                .filter(error -> error instanceof FieldError)
-                .map(error -> (FieldError) error)
                 .collect(Collectors.groupingBy(
                         FieldError::getField,
                         Collectors.mapping(FieldError::getDefaultMessage, Collectors.toList())
@@ -61,35 +63,31 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errorResponse);
     }
 
-    @ExceptionHandler(InvalidQueryFilterValueException.class)
-    public ResponseEntity<?> handleException(@NotNull InvalidQueryFilterValueException e, WebRequest request, Locale locale) {
-        Map<String, List<String>> groupedErrors = e.getMethodArgumentNotValidException()
-                .getBindingResult()
-                .getAllErrors()
-                .stream()
-                .filter(error -> error instanceof FieldError)
-                .map(error -> (FieldError) error)
-                .collect(Collectors.groupingBy(
-                        FieldError::getField,
-                        Collectors.mapping(FieldError::getDefaultMessage, Collectors.toList())
-                ));
+//    @ExceptionHandler(InvalidQueryParameterException.class)
+//    @Override
+//    public ResponseEntity<?> handleException(@NotNull InvalidQueryParameterException e, WebRequest request) {
+//        Map<String, List<String>> groupedErrors = e.getBindingResult()
+//                .getFieldErrors()
+//                .stream()
+//                .collect(Collectors.groupingBy(
+//                        FieldError::getField,
+//                        Collectors.mapping(FieldError::getDefaultMessage, Collectors.toList())
+//                ));
+//
+//        ApiErrorResponse errorResponse = new StandardApiErrorResponse(
+//                "Query strings validation failed",
+//                getRequestPath(request),
+//                groupedErrors
+//        );
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+//    }
 
-        ApiErrorResponse errorResponse = new StandardApiErrorResponse(
-                "Query strings validation failed",
-                getRequestPath(request),
-                groupedErrors
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
-    }
-
-    @ExceptionHandler(InvalidFilterConfigurationException.class)
-    public ResponseEntity<?> handleException(@NotNull InvalidFilterConfigurationException e, WebRequest request, Locale locale) {
-        Map<String, List<String>> groupedErrors = e.getMethodArgumentNotValidException()
-                .getBindingResult()
-                .getAllErrors()
+//    @ExceptionHandler(QueryBuilderConfigurationException.class)
+    @Override
+    public ResponseEntity<?> handleException(@NotNull QueryBuilderConfigurationException e, WebRequest request) {
+        Map<String, List<String>> groupedErrors = e.getBindingResult()
+                .getFieldErrors()
                 .stream()
-                .filter(error -> error instanceof FieldError)
-                .map(error -> (FieldError) error)
                 .collect(Collectors.groupingBy(
                         FieldError::getField,
                         Collectors.mapping(FieldError::getDefaultMessage, Collectors.toList())

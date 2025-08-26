@@ -49,32 +49,46 @@ public class UserService extends UuidSingleDtoGenericService<User, UserRepositor
 
     @Override
     public Optional<Specification<User>> getSpec(HttpServletRequest request) {
-        FilterContext<User> filterContext = FilterContext.buildForType(User.class)
-                .queryParam(request, builder -> {
+        FilterContext.Template<User> filterContextTemplate = FilterContext.buildTemplateForType(User.class)
+                .queryParam(builder -> {
                     builder.addFilter("createdBy", Operator.EQ)
                     .addFilter("firstName", (root, cq, cb) -> root.get("firstName"), Operator.EQ, Operator.BETWEEN)
                     .addFilter("isActive", Operator.IS_NULL, Operator.IS_NOT_NULL, Operator.GTE)
                     .addFilter("lastLogin", Operator.EQ, Operator.GTE, Operator.STARTS_WITH)
                     .addFilter("createdAt", Operator.EQ, Operator.GTE, Operator.LTE)
+                    .addCustomFilter("search", String.class, this::search)
                     .addFilter("createdBy.lastLogin", Operator.EQ, Operator.GTE, Operator.BETWEEN);
                 })
-                .requestBody(List.of(new FilterRequest("firstName", Operator.EQ.getValue(), "Ali")), builder -> {
+                .requestBody(builder -> {
                     builder.addCustomFilter("search", String.class, this::search)
+                        .addFilter("firstName", Operator.EQ)
                     .addFilter("isActive", Operator.IS_NULL, Operator.IS_NOT_NULL);
                 })
-                .build();
+            .buildTemplate();
 
-        SortContext<User> sortContext = SortContext.buildForType(User.class)
-                .queryParam(request, builder -> {
+        FilterContext<User> filterContext = filterContextTemplate
+            .newSourceBuilder()
+            .withQuerySource(request)
+            .withBodySource(List.of(new FilterRequest("firstName", Operator.EQ.getValue(), "Ali")))
+            .buildFilterContext();
+
+        SortContext<User> sortContext = SortContext.buildTemplateForType(User.class)
+                .queryParam(builder -> {
                     builder.addSorts("firstName")
                     .addDescSort("createdBy.firstName");
                 })
-                .build();
-
+                .buildTemplate()
+                .newSourceBuilder()
+                .withQuerySource(request)
+                .buildSortContext();
         return Optional.of(queryFilterBuilder.buildFilterSpecification(filterContext).and(queryFilterBuilder.buildSortSpecification(sortContext)));
     }
 
     private Optional<Predicate> search(Root<User> root, CriteriaQuery<?> query, CriteriaBuilder cb, List<?> values, FilterErrorWrapper errorWrapper) {
+        return Optional.ofNullable(cb.or(cb.equal(root.get("firstName"), values.get(0)), cb.equal(root.get("lastName"), values.get(0))));
+    }
+
+    private Optional<Predicate> search1(Root<User> root, CriteriaQuery<?> query, CriteriaBuilder cb, List<?> values, FilterErrorWrapper errorWrapper) {
         return Optional.ofNullable(cb.or(cb.equal(root.get("firstName"), values.get(0)), cb.equal(root.get("lastName"), values.get(0))));
     }
 
